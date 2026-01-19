@@ -28,10 +28,9 @@ CONTROLS:
 
 import asyncio
 import random
+import sys
 
 from M5 import Lcd, Widgets
-
-import sys
 
 # Path setup for imports (need parent of lib/ for "from lib.x" imports)
 for lib_path in ["/flash", "/remote"]:
@@ -39,7 +38,6 @@ for lib_path in ["/flash", "/remote"]:
         sys.path.insert(0, lib_path)
 
 from lib.app_base import AppBase
-
 
 # =============================================================================
 # SCREEN CONSTANTS
@@ -71,7 +69,7 @@ class AnimDemo(AppBase):
         self._canvas = None
 
         # Two sets of balls
-        self._balls_left = []   # Direct LCD (flickery)
+        self._balls_left = []  # Direct LCD (flickery)
         self._balls_right = []  # Canvas (smooth)
 
     def on_launch(self):
@@ -82,14 +80,12 @@ class AnimDemo(AppBase):
 
         # Left side balls (warm colors)
         self._balls_left = self._create_balls(
-            count=3,
-            colors=[Lcd.COLOR.RED, Lcd.COLOR.YELLOW, Lcd.COLOR.ORANGE]
+            count=3, colors=[Lcd.COLOR.RED, Lcd.COLOR.YELLOW, Lcd.COLOR.ORANGE]
         )
 
         # Right side balls (cool colors)
         self._balls_right = self._create_balls(
-            count=3,
-            colors=[Lcd.COLOR.GREEN, Lcd.COLOR.CYAN, Lcd.COLOR.BLUE]
+            count=3, colors=[Lcd.COLOR.GREEN, Lcd.COLOR.CYAN, Lcd.COLOR.BLUE]
         )
 
     def on_view(self):
@@ -137,11 +133,7 @@ class AnimDemo(AppBase):
 
         # Draw balls directly to screen
         for ball in self._balls_left:
-            Lcd.fillRect(
-                int(ball["x"]), int(ball["y"]),
-                ball["size"], ball["size"],
-                ball["color"]
-            )
+            Lcd.fillRect(int(ball["x"]), int(ball["y"]), ball["size"], ball["size"], ball["color"])
 
         # =================================================================
         # RIGHT SIDE: Canvas (SMOOTH!)
@@ -161,9 +153,7 @@ class AnimDemo(AppBase):
         # Draw balls to canvas - still invisible
         for ball in self._balls_right:
             canvas.fillRect(
-                int(ball["x"]), int(ball["y"]),
-                ball["size"], ball["size"],
-                ball["color"]
+                int(ball["x"]), int(ball["y"]), ball["size"], ball["size"], ball["color"]
             )
 
         # THE MAGIC: Push entire canvas at once!
@@ -190,14 +180,16 @@ class AnimDemo(AppBase):
         """Create ball objects."""
         balls = []
         for i in range(count):
-            balls.append({
-                "x": float(random.randint(5, HALF_W - 20)),
-                "y": float(random.randint(20, SCREEN_H - 30)),
-                "vx": random.choice([-2.5, -2.0, 2.0, 2.5]),
-                "vy": random.choice([-2.0, -1.5, 1.5, 2.0]),
-                "size": 12,
-                "color": colors[i % len(colors)],
-            })
+            balls.append(
+                {
+                    "x": float(random.randint(5, HALF_W - 20)),
+                    "y": float(random.randint(20, SCREEN_H - 30)),
+                    "vx": random.choice([-2.5, -2.0, 2.0, 2.5]),
+                    "vy": random.choice([-2.0, -1.5, 1.5, 2.0]),
+                    "size": 12,
+                    "color": colors[i % len(colors)],
+                }
+            )
         return balls
 
     def _update_balls(self, balls):
@@ -219,6 +211,7 @@ class AnimDemo(AppBase):
 if __name__ == "__main__":
     # Standalone mode - run this app directly, ESC exits to REPL
     import M5
+
     M5.begin()
     Lcd.setRotation(1)
     Lcd.setBrightness(40)

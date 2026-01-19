@@ -47,26 +47,30 @@ USAGE:
 # IMPORTS
 # =============================================================================
 
-from lib import app_base
-from hardware import MatrixKeyboard
-import M5
 import asyncio
-import sys
 import os
+import sys
+
+import M5
+from hardware import MatrixKeyboard
+
+from lib import app_base
 
 # Try to import KeyCode constants from firmware
 # Fall back to our own definitions if not available
 try:
     from unit import KeyCode
 except ImportError:
+
     class KeyCode:
         """Key code constants for special keys."""
-        KEYCODE_ESC = 0x1B      # Escape key
-        KEYCODE_ENTER = 0x0D    # Enter/Return key
-        KEYCODE_LEFT = 0x25     # Left arrow (if available)
-        KEYCODE_UP = 0x26       # Up arrow
-        KEYCODE_RIGHT = 0x27    # Right arrow (if available)
-        KEYCODE_DOWN = 0x28     # Down arrow
+
+        KEYCODE_ESC = 0x1B  # Escape key
+        KEYCODE_ENTER = 0x0D  # Enter/Return key
+        KEYCODE_LEFT = 0x25  # Left arrow (if available)
+        KEYCODE_UP = 0x26  # Up arrow
+        KEYCODE_RIGHT = 0x27  # Right arrow (if available)
+        KEYCODE_DOWN = 0x28  # Down arrow
 
 
 # =============================================================================
@@ -98,6 +102,7 @@ class KeyEvent:
             # Don't set status for keys you don't handle
             # ESC should NOT be marked as handled (let framework handle it)
     """
+
     key = 0
     status = False
 
@@ -193,7 +198,11 @@ class Framework:
 
         for entry in os.ilistdir(self._apps_dir):
             filename = entry[0]
-            if not filename.endswith('.py') or filename.startswith('_') or filename == 'launcher.py':
+            if (
+                not filename.endswith(".py")
+                or filename.startswith("_")
+                or filename == "launcher.py"
+            ):
                 continue
 
             module_name = filename[:-3]
@@ -240,12 +249,12 @@ class Framework:
     def _find_app_class(self, module):
         """Find AppBase subclass in module."""
         for attr_name in dir(module):
-            if attr_name.startswith('_'):
+            if attr_name.startswith("_"):
                 continue
             attr = getattr(module, attr_name)
-            if hasattr(attr, '__bases__'):
+            if hasattr(attr, "__bases__"):
                 for base in attr.__bases__:
-                    if base.__name__ == 'AppBase':
+                    if base.__name__ == "AppBase":
                         return attr
         return None
 
@@ -298,8 +307,8 @@ class Framework:
             The app to switch to
         """
         current = self._app_selector.current()
-        current_name = getattr(current, 'name', type(current).__name__)
-        app_name = getattr(app, 'name', type(app).__name__)
+        current_name = getattr(current, "name", type(current).__name__)
+        app_name = getattr(app, "name", type(app).__name__)
         print(f"[framework] Launching {app_name} (from {current_name})")
         current.stop()
         self._app_selector.select(app)
@@ -314,7 +323,7 @@ class Framework:
         If no launcher is set (standalone mode), exits the framework.
         """
         current = self._app_selector.current()
-        current_name = getattr(current, 'name', type(current).__name__)
+        current_name = getattr(current, "name", type(current).__name__)
 
         # No launcher set - exit the framework (standalone mode)
         if not self._launcher:
@@ -357,7 +366,7 @@ class Framework:
         elif self._apps:
             # Standalone mode - start the first installed app
             app = self._apps[0]
-            app_name = getattr(app, 'name', type(app).__name__)
+            app_name = getattr(app, "name", type(app).__name__)
             print(f"[framework] Starting {app_name} (standalone mode)")
             self._app_selector.select(app)
             app.start(self)
@@ -403,6 +412,5 @@ class Framework:
             await app._kb_event_handler(event, self)
 
         # If not handled and ESC was pressed, return to launcher
-        if event.status is False:
-            if event.key == KeyCode.KEYCODE_ESC:
-                await self.return_to_launcher()
+        if event.status is False and event.key == KeyCode.KEYCODE_ESC:
+            await self.return_to_launcher()

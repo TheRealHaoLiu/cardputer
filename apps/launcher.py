@@ -23,13 +23,12 @@ CONTROLS:
 The launcher excludes itself from the app list (you can't launch the launcher).
 """
 
-import sys
 import os
+import sys
 
 # =============================================================================
 # IMPORTS
 # =============================================================================
-
 from M5 import Lcd, Widgets
 
 # Path setup for imports (need parent of lib/ for "from lib.x" imports)
@@ -44,6 +43,7 @@ from lib.app_base import AppBase
 try:
     from unit import KeyCode
 except ImportError:
+
     class KeyCode:
         KEYCODE_ESC = 0x1B
         KEYCODE_ENTER = 0x0D
@@ -70,9 +70,9 @@ except OSError:
 # These control the visual layout of the menu.
 # Adjust these if you want more/fewer items visible.
 
-MENU_START_Y = 22   # Y position where menu items start (below title)
-MENU_ITEM_H = 22    # Height of each menu item in pixels
-VISIBLE_ITEMS = 4   # How many items fit on screen at once
+MENU_START_Y = 22  # Y position where menu items start (below title)
+MENU_ITEM_H = 22  # Height of each menu item in pixels
+VISIBLE_ITEMS = 4  # How many items fit on screen at once
 
 
 # =============================================================================
@@ -273,5 +273,6 @@ class LauncherApp(AppBase):
         All interaction happens through _kb_event_handler().
         """
         import asyncio
+
         while True:
             await asyncio.sleep_ms(100)

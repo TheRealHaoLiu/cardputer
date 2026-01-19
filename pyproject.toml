@@ -37,6 +37,8 @@ ignore = [
 "*.py" = ["E402"]  # module level import not at top of file
 # Widgets are created for display, not always referenced
 "apps/demo_widgets.py" = ["F841"]
+# Legacy apps - not actively maintained
+"legacy_apps/*.py" = ["F841"]
 # main.py uses dynamic imports
 "main.py" = ["SIM115"]
 

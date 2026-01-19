@@ -42,8 +42,8 @@ CONTROLS:
 #
 # We only need to add the apps directory for dynamic app discovery.
 
-import sys
 import os
+import sys
 
 # Detect run mode and add apps path for dynamic discovery
 try:
@@ -81,8 +81,8 @@ Lcd.fillScreen(Lcd.COLOR.BLACK)  # Clear to black
 # Import the framework components and all apps.
 # Apps must be imported AFTER path setup above.
 
-from lib.framework import Framework
 from apps.launcher import LauncherApp
+from lib.framework import Framework
 
 # Apps are discovered automatically from the apps/ directory.
 # To add a new app, just create apps/my_app.py (inherit from AppBase).

@@ -298,7 +298,9 @@ class NvsDemo:
             "nvs.commit()",
         ]
         for line in info:
-            Lcd.setTextColor(Lcd.COLOR.YELLOW if line.startswith("'") else Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
+            Lcd.setTextColor(
+                Lcd.COLOR.YELLOW if line.startswith("'") else Lcd.COLOR.CYAN, Lcd.COLOR.BLACK
+            )
             Lcd.setCursor(10, y)
             Lcd.print(line)
             y += 11
