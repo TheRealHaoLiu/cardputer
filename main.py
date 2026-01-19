@@ -23,8 +23,7 @@ The Framework:
 ADDING NEW APPS:
 ----------------
 1. Create a new file in apps/ (copy hello_world.py as template)
-2. Import your app class here
-3. Call fw.install(YourApp()) in main()
+2. The launcher auto-discovers apps from the apps/ directory
 
 CONTROLS:
 ---------
@@ -37,15 +36,23 @@ CONTROLS:
 # =============================================================================
 # PATH SETUP
 # =============================================================================
-# MicroPython needs to know where to find our modules.
-# We add both /flash (deployed) and /remote (development mount) paths.
-# This allows the same code to work in both modes.
+# MicroPython adds the script's directory to sys.path automatically.
+# So when running /remote/main.py, /remote is already in path and
+# "from lib.framework" finds /remote/lib/framework.py.
+#
+# We only need to add the apps directory for dynamic app discovery.
 
 import sys
+import os
 
-for path in ["/flash/lib", "/remote/lib", "/flash/apps", "/remote/apps"]:
-    if path not in sys.path:
-        sys.path.insert(0, path)  # Insert at front so our code takes priority
+# Detect run mode and add apps path for dynamic discovery
+try:
+    os.stat("/remote/apps")
+    if "/remote/apps" not in sys.path:
+        sys.path.insert(0, "/remote/apps")
+except OSError:
+    if "/flash/apps" not in sys.path:
+        sys.path.insert(0, "/flash/apps")
 
 # =============================================================================
 # HARDWARE INITIALIZATION
@@ -76,13 +83,10 @@ Lcd.fillScreen(Lcd.COLOR.BLACK)  # Clear to black
 
 from lib.framework import Framework
 from apps.launcher import LauncherApp
-from apps.hello_world import HelloWorld
-from apps.anim_demo import AnimDemo
 
-# To add a new app:
-# 1. Create apps/my_app.py (inherit from AppBase)
-# 2. Add: from apps.my_app import MyApp
-# 3. Add: fw.install(MyApp()) in main() below
+# Apps are discovered automatically from the apps/ directory.
+# To add a new app, just create apps/my_app.py (inherit from AppBase).
+# The launcher will find and load it automatically.
 
 
 # =============================================================================
@@ -114,16 +118,9 @@ def main():
     fw.install_launcher(launcher)
     fw.install(launcher)
 
-    # Install apps
-    # Each app is an instance of an AppBase subclass
-    # The launcher will show all installed apps (except itself)
-    fw.install(HelloWorld())
-    fw.install(AnimDemo())
+    # Apps are discovered automatically when the launcher starts.
+    # See lib/framework.py discover_apps() for the discovery logic.
 
-    # Add more apps here:
-    # fw.install(MyOtherApp())
-
-    print(f"Installed {len(fw.get_apps()) - 1} apps")  # -1 excludes launcher
     print("Framework ready. ESC returns to launcher.")
 
     # Start the framework

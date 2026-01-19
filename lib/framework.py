@@ -51,6 +51,8 @@ from lib import app_base
 from hardware import MatrixKeyboard
 import M5
 import asyncio
+import sys
+import os
 
 # Try to import KeyCode constants from firmware
 # Fall back to our own definitions if not available
@@ -122,6 +124,17 @@ class Framework:
         self._apps = []  # List of installed apps
         self._app_selector = app_base.AppSelector(self._apps)
         self._launcher = None  # Special app that ESC returns to
+        self._running = False  # Controls main event loop
+        self._discovered_modules = set()  # Track loaded modules
+
+        # Detect run mode once at init (doesn't change without reset)
+        try:
+            os.stat("/remote/apps")
+            self._apps_dir = "/remote/apps"
+            self._is_remote = True
+        except OSError:
+            self._apps_dir = "/flash/apps"
+            self._is_remote = False
 
     # =========================================================================
     # APP INSTALLATION
@@ -169,6 +182,72 @@ class Framework:
         list : List of AppBase instances
         """
         return self._apps
+
+    # =========================================================================
+    # APP DISCOVERY
+    # =========================================================================
+
+    def discover_apps(self):
+        """Scan apps directory and load/reload app modules."""
+        print(f"[discover] Scanning {self._apps_dir} (remote={self._is_remote})")
+
+        for entry in os.ilistdir(self._apps_dir):
+            filename = entry[0]
+            if not filename.endswith('.py') or filename.startswith('_') or filename == 'launcher.py':
+                continue
+
+            module_name = filename[:-3]
+
+            # In remote mode, force reload for hot-reloading
+            if self._is_remote and module_name in sys.modules:
+                print(f"[discover] Reloading {module_name}")
+                del sys.modules[module_name]
+
+            # Skip if already discovered (flash mode only)
+            if not self._is_remote and module_name in self._discovered_modules:
+                print(f"[discover] Skipping {module_name} (already discovered)")
+                continue
+
+            try:
+                module = __import__(module_name)
+                self._discovered_modules.add(module_name)
+
+                app_class = self._find_app_class(module)
+                if app_class:
+                    # Find existing app with same class name
+                    existing_idx = None
+                    for i, app in enumerate(self._apps):
+                        if type(app).__name__ == app_class.__name__:
+                            existing_idx = i
+                            break
+
+                    if existing_idx is not None:
+                        # In remote mode, replace with new instance for hot-reload
+                        if self._is_remote:
+                            new_app = app_class()
+                            new_app.install()
+                            self._apps[existing_idx] = new_app
+                            print(f"[discover] Replaced {app_class.__name__}")
+                    else:
+                        # New app, install it
+                        self.install(app_class())
+                        print(f"[discover] Installed {app_class.__name__}")
+                else:
+                    print(f"[discover] No AppBase subclass in {filename}")
+            except Exception as e:
+                print(f"[discover] Failed to load {filename}: {e}")
+
+    def _find_app_class(self, module):
+        """Find AppBase subclass in module."""
+        for attr_name in dir(module):
+            if attr_name.startswith('_'):
+                continue
+            attr = getattr(module, attr_name)
+            if hasattr(attr, '__bases__'):
+                for base in attr.__bases__:
+                    if base.__name__ == 'AppBase':
+                        return attr
+        return None
 
     # =========================================================================
     # FRAMEWORK CONTROL
@@ -219,6 +298,9 @@ class Framework:
             The app to switch to
         """
         current = self._app_selector.current()
+        current_name = getattr(current, 'name', type(current).__name__)
+        app_name = getattr(app, 'name', type(app).__name__)
+        print(f"[framework] Launching {app_name} (from {current_name})")
         current.stop()
         self._app_selector.select(app)
         app.start(self)
@@ -229,9 +311,20 @@ class Framework:
 
         Stops the current app and starts the launcher.
         Called when ESC is pressed and not handled by the app.
+        If no launcher is set (standalone mode), exits the framework.
         """
         current = self._app_selector.current()
+        current_name = getattr(current, 'name', type(current).__name__)
+
+        # No launcher set - exit the framework (standalone mode)
+        if not self._launcher:
+            print(f"[framework] Exiting {current_name} (standalone mode)")
+            current.stop()
+            self._running = False
+            return
+
         if current != self._launcher:
+            print(f"[framework] Returning to launcher (from {current_name})")
             current.stop()
             self._app_selector.select(self._launcher)
             self._launcher.start(self)
@@ -256,13 +349,22 @@ class Framework:
         kb = MatrixKeyboard()
         event = KeyEvent()
 
-        # Start the launcher as the initial app
+        # Start the launcher (or first app in standalone mode)
         if self._launcher:
+            print("[framework] Starting launcher")
             self._app_selector.select(self._launcher)
             self._launcher.start(self)
+        elif self._apps:
+            # Standalone mode - start the first installed app
+            app = self._apps[0]
+            app_name = getattr(app, 'name', type(app).__name__)
+            print(f"[framework] Starting {app_name} (standalone mode)")
+            self._app_selector.select(app)
+            app.start(self)
 
-        # Main event loop - runs forever
-        while True:
+        # Main event loop
+        self._running = True
+        while self._running:
             # Update M5Stack hardware (required for event processing)
             M5.update()
 

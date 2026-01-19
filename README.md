@@ -74,12 +74,14 @@ Each app has standalone support via `if __name__ == "__main__"` block, so you ca
 
 ### How It Works
 
-`poe run` mounts your local directory to `/remote/` on the device and executes the file. Your local edits are immediately available - no copying needed!
+`poe run` mounts your local directory to `/remote/` on the device and executes the file. **All files are loaded from your local machine** - including `lib/` (framework, app_base) and `apps/`. Your local edits are immediately available - no copying needed!
 
 - `poe run` (no args) → runs `main.py` → shows launcher menu
 - `poe run apps/foo.py` → runs that app directly with hardware init
 
-Press **ESC** to exit any app and return to the REPL.
+**Hot-reloading**: In remote mode, returning to the launcher (ESC) reloads app modules, so your code changes take effect without restarting.
+
+Press **ESC** to exit any app and return to the launcher (or REPL if running standalone).
 
 ### Deploy to Flash (Standalone)
 
@@ -87,7 +89,14 @@ Press **ESC** to exit any app and return to the REPL.
 uv run poe deploy
 ```
 
-Copies all files to device flash and resets. The device runs independently after this - no computer needed.
+Copies all files to device flash. The device runs independently after this - no computer needed.
+
+**WARNING**: Deploy replaces **all** of the following on the device:
+- `/flash/main.py`
+- `/flash/lib/*` (framework.py, app_base.py, etc.)
+- `/flash/apps/*` (all app files)
+
+Any changes made directly on the device will be lost!
 
 ### Direct REPL Access
 
@@ -130,12 +139,11 @@ Each demo teaches specific concepts. Run them with `uv run poe run apps/<name>.p
 ## Creating New Apps
 
 1. Copy `apps/hello_world.py` to `apps/my_app.py`
-2. Rename the class to `MyApp`
-3. Update the `if __name__ == "__main__"` block to use `MyApp`
-4. Add to `APP_REGISTRY` in `main.py`:
-   ```python
-   ("my_app", "MyApp", "My App"),
-   ```
+2. Rename the class to `MyApp` (must inherit from `AppBase`)
+3. Set `self.name = "My App"` in `__init__`
+4. Update the `if __name__ == "__main__"` block to use `MyApp`
+
+**That's it!** Apps are auto-discovered from the `apps/` directory. No need to register them anywhere - just create the file and it appears in the launcher.
 
 See `apps/hello_world.py` for the required structure and keyboard handling patterns.
 

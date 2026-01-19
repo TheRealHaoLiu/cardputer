@@ -32,7 +32,9 @@ import random
 from M5 import Lcd, Widgets
 
 import sys
-for lib_path in ["/flash/lib", "/remote/lib"]:
+
+# Path setup for imports (need parent of lib/ for "from lib.x" imports)
+for lib_path in ["/flash", "/remote"]:
     if lib_path not in sys.path:
         sys.path.insert(0, lib_path)
 
@@ -212,3 +214,17 @@ class AnimDemo(AppBase):
             if ball["y"] <= 18 or ball["y"] >= SCREEN_H - ball["size"] - 15:
                 ball["vy"] = -ball["vy"]
                 ball["y"] = max(18, min(ball["y"], SCREEN_H - ball["size"] - 15))
+
+
+if __name__ == "__main__":
+    # Standalone mode - run this app directly, ESC exits to REPL
+    import M5
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    from lib.framework import Framework
+
+    fw = Framework()
+    fw.install(AnimDemo())
+    fw.start()
