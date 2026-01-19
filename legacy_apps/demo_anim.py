@@ -156,7 +156,13 @@ class AnimDemo:
             looking smoother than integer-only movement.
             """
             balls = []
-            colors = [Lcd.COLOR.RED, Lcd.COLOR.GREEN, Lcd.COLOR.BLUE, Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA]
+            colors = [
+                Lcd.COLOR.RED,
+                Lcd.COLOR.GREEN,
+                Lcd.COLOR.BLUE,
+                Lcd.COLOR.YELLOW,
+                Lcd.COLOR.MAGENTA,
+            ]
             for i in range(count):
                 balls.append(
                     {

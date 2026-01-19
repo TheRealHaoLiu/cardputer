@@ -57,7 +57,6 @@ CREATING AN APP:
 
 import asyncio
 
-
 # =============================================================================
 # APP SELECTOR CLASS
 # =============================================================================
@@ -168,7 +167,7 @@ class AppBase:
         Then set self.name to your app's display name.
         """
         self._task = None  # Background task (created in on_ready)
-        self._fw = None    # Framework reference (set by framework)
+        self._fw = None  # Framework reference (set by framework)
         self.name = "Unnamed App"  # Override this!
 
     # =========================================================================

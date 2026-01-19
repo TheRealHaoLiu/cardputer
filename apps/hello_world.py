@@ -34,21 +34,19 @@ Select it and press Enter to launch.
 import asyncio
 
 # =============================================================================
-# IMPORTS
-# =============================================================================
-# M5 module provides access to LCD display and hardware
-# Widgets provides fonts for text rendering
-
-from M5 import Lcd, Widgets
-
-# =============================================================================
 # PATH SETUP FOR IMPORTS
 # =============================================================================
 # When running as an app, we need to ensure lib/ is in the import path.
 # This allows us to import from lib.app_base even when the app is
 # loaded dynamically by the framework.
-
 import sys
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
+# M5 module provides access to LCD display and hardware
+# Widgets provides fonts for text rendering
+from M5 import Lcd, Widgets
 
 # Path setup for imports (need parent of lib/ for "from lib.x" imports)
 for lib_path in ["/flash", "/remote"]:
@@ -56,7 +54,6 @@ for lib_path in ["/flash", "/remote"]:
         sys.path.insert(0, lib_path)
 
 from lib.app_base import AppBase
-
 
 # =============================================================================
 # APP CLASS
@@ -156,6 +153,7 @@ class HelloWorld(AppBase):
 if __name__ == "__main__":
     # Standalone mode - run this app directly, ESC exits to REPL
     import M5
+
     M5.begin()
     Lcd.setRotation(1)
     Lcd.setBrightness(40)

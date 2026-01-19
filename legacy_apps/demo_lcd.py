@@ -299,7 +299,16 @@ class LcdDemo:
         for _ in range(200):
             x = random.randint(10, 230)
             y = random.randint(45, 100)
-            color = random.choice([Lcd.COLOR.RED, Lcd.COLOR.GREEN, Lcd.COLOR.BLUE, Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA, Lcd.COLOR.CYAN])
+            color = random.choice(
+                [
+                    Lcd.COLOR.RED,
+                    Lcd.COLOR.GREEN,
+                    Lcd.COLOR.BLUE,
+                    Lcd.COLOR.YELLOW,
+                    Lcd.COLOR.MAGENTA,
+                    Lcd.COLOR.CYAN,
+                ]
+            )
             Lcd.drawPixel(x, y, color)
 
         Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
