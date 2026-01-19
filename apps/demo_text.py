@@ -1,5 +1,39 @@
-# LCD Text Demo - Reference for text rendering on M5Stack Cardputer
-# Press Enter/OK to advance, ESC to exit
+"""
+Text Demo - Text Rendering on M5Stack Cardputer
+================================================
+
+Learn how to display text on the Cardputer's LCD. This demo covers all the
+essential text rendering techniques you'll need.
+
+CONCEPTS COVERED:
+-----------------
+1. Fonts - Built-in fonts and when to use each
+2. Font Scaling - setTextSize() for larger text
+3. Colors - RGB565 color format
+4. Text Measurement - textWidth() and fontHeight() for layout
+5. Alignment - drawString, drawCenterString, drawRightString
+6. Formatted Output - f-strings and printf()
+7. Scrolling Text - Marquee effect using canvas as viewport
+
+AVAILABLE FONTS (Widgets.FONTS):
+--------------------------------
+- ASCII7: Monospace 6x9 pixels - best for terminals/code
+- DejaVu9/12/18/24/40/56/72: Proportional fonts at various sizes
+- EFontCN24, EFontJA24, EFontKR24: CJK (Chinese/Japanese/Korean) fonts
+
+RGB565 COLOR FORMAT:
+--------------------
+Colors are 16-bit values: 5 bits red, 6 bits green, 5 bits blue.
+Common colors:
+    0x0000 = Black      0xFFFF = White
+    0xF800 = Red        0x07E0 = Green      0x001F = Blue
+    0xFFE0 = Yellow     0xF81F = Magenta    0x07FF = Cyan
+
+CONTROLS:
+---------
+- Enter = Advance to next section
+- ESC = Exit to launcher
+"""
 
 import time
 
@@ -373,3 +407,20 @@ class TextDemo:
         self.running = False
         print("Text Demo exited")
         return self
+
+
+if __name__ == "__main__":
+    import M5
+    import machine
+    from hardware import KeyboardI2C
+    from M5 import Lcd
+
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    i2c1 = machine.I2C(1, scl=machine.Pin(9), sda=machine.Pin(8), freq=400000)
+    intr_pin = machine.Pin(11, mode=machine.Pin.IN, pull=None)
+    kb = KeyboardI2C(i2c1, intr_pin=intr_pin, mode=KeyboardI2C.ASCII_MODE)
+
+    TextDemo(kb).run()

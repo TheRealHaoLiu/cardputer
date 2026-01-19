@@ -1,6 +1,60 @@
-# NVS Demo - Non-Volatile Storage on ESP32
-# NVS is a key-value store that persists across reboots
-# Press Enter to advance sections, ESC to exit
+"""
+NVS Demo - Non-Volatile Storage on ESP32
+=========================================
+
+Learn to use NVS (Non-Volatile Storage) - a persistent key-value store
+built into the ESP32. Data survives reboots and power cycles!
+
+CONCEPTS COVERED:
+-----------------
+1. What is NVS - Key-value store in flash memory
+2. Basic API - Reading and writing values
+3. Namespaces - Organizing data by app
+4. Data Types - u8, i32, str, blob
+5. UIFlow Settings - Understanding system namespaces
+
+NVS API QUICK REFERENCE:
+------------------------
+    import esp32
+    nvs = esp32.NVS('namespace_name')
+
+    # Read values (raises OSError if key doesn't exist)
+    val = nvs.get_u8('key')     # Unsigned 8-bit (0-255)
+    val = nvs.get_i32('key')    # Signed 32-bit integer
+    val = nvs.get_str('key')    # String
+
+    # Write values (MUST call commit() after!)
+    nvs.set_u8('key', value)
+    nvs.set_i32('key', value)
+    nvs.set_str('key', value)
+    nvs.commit()  # Actually saves to flash!
+
+IMPORTANT: Always call nvs.commit() after writes, or data won't be saved!
+
+COMMON NAMESPACES:
+------------------
+- 'uiflow': UIFlow2 system settings (boot_option, brightness, wifi, etc.)
+- 'nvs': System defaults
+- Your own: Any string up to 15 characters
+
+UIFLOW boot_option VALUES:
+--------------------------
+- 0: Run /flash/main.py directly (best for development)
+- 1: Show built-in launcher menu
+- 2: Network setup only
+
+USE CASES:
+----------
+- Save user settings (brightness, preferences)
+- Store high scores
+- Remember WiFi credentials
+- Save app state between sessions
+
+CONTROLS:
+---------
+- Enter = Advance to next section
+- ESC = Exit to launcher
+"""
 
 import time
 
@@ -323,3 +377,20 @@ class NvsDemo:
         self.running = False
         print("NVS Demo exited")
         return self
+
+
+if __name__ == "__main__":
+    import M5
+    import machine
+    from hardware import KeyboardI2C
+    from M5 import Lcd
+
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    i2c1 = machine.I2C(1, scl=machine.Pin(9), sda=machine.Pin(8), freq=400000)
+    intr_pin = machine.Pin(11, mode=machine.Pin.IN, pull=None)
+    kb = KeyboardI2C(i2c1, intr_pin=intr_pin, mode=KeyboardI2C.ASCII_MODE)
+
+    NvsDemo(kb).run()

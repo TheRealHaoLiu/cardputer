@@ -1,6 +1,57 @@
-# Animation Demo - Reference for smooth animation on M5Stack Cardputer
-# Compares direct LCD drawing (flickery) vs canvas double buffering (smooth)
-# Press Enter/OK to advance, ESC to exit
+"""
+Animation Demo - Double Buffering on M5Stack Cardputer
+=======================================================
+
+This demo teaches the MOST IMPORTANT graphics concept for smooth animation:
+DOUBLE BUFFERING (also called off-screen rendering or canvas buffering).
+
+THE PROBLEM: FLICKER
+--------------------
+When you animate by doing this:
+    1. Clear screen (fillScreen)
+    2. Draw objects at new positions
+
+The user SEES the clear happen, then sees the draw. This creates flicker
+because there's a moment where the screen is blank between frames.
+
+THE SOLUTION: DOUBLE BUFFERING
+------------------------------
+Draw to an invisible buffer first, then copy the entire buffer to the
+screen in one fast operation:
+    1. Clear CANVAS (invisible, off-screen)
+    2. Draw objects to CANVAS (still invisible)
+    3. Copy entire CANVAS to screen (one atomic operation)
+
+The user never sees an intermediate state - the screen updates all at once!
+
+HOW TO USE CANVAS IN M5STACK:
+-----------------------------
+    # Create canvas (same size as screen)
+    canvas = Lcd.newCanvas(240, 135)
+
+    # Draw to canvas (same API as Lcd)
+    canvas.fillScreen(0x0000)
+    canvas.fillRect(x, y, w, h, color)
+    canvas.print("Hello")
+
+    # Copy canvas to screen (the magic!)
+    canvas.push(0, 0)  # push to screen at position (0,0)
+
+    # When done, free the memory
+    canvas.delete()
+
+CONCEPTS COVERED:
+-----------------
+1. Direct LCD Drawing - Why it flickers
+2. Canvas/Double Buffering - How to avoid flicker
+3. Animation Loop - Update positions, then redraw
+4. Side-by-Side Comparison - See the difference yourself
+
+CONTROLS:
+---------
+- Enter = Advance to next demo section
+- ESC = Exit to launcher
+"""
 
 import random
 import time
@@ -13,23 +64,39 @@ SCREEN_H = 135
 
 
 class AnimDemo:
+    """
+    Interactive animation demo comparing direct LCD vs canvas rendering.
+
+    The demo has 3 parts:
+    1. Direct LCD drawing (flickery) - so you can see the problem
+    2. Canvas double buffering (smooth) - the solution
+    3. Side-by-side comparison - same animation, different technique
+    """
+
     def __init__(self, keyboard):
         self.kb = keyboard
         self.running = False
 
     def run(self):
         self.running = True
+
+        # =====================================================================
+        # KEYBOARD SETUP
+        # =====================================================================
+        # Using flags for navigation between demo sections.
+        # exit_flag = leave the demo entirely
+        # next_flag = advance to next section
+
         exit_flag = False
         next_flag = False
 
-        # =====================================================================
-        # KEYBOARD HANDLING
-        # =====================================================================
-        # Use a local function with nonlocal to set flags
-        # IMPORTANT: Never call blocking code (like run()) from inside callback
-        # The callback runs in interrupt context - just set flags here
-
         def on_key(keyboard):
+            """
+            Handle key events for demo navigation.
+
+            IMPORTANT: We only set flags here, no heavy processing.
+            This is called from interrupt context!
+            """
             nonlocal exit_flag, next_flag
             while keyboard._keyevents:
                 event = keyboard._keyevents.pop(0)
@@ -40,31 +107,56 @@ class AnimDemo:
 
         self.kb.set_keyevent_callback(on_key)
 
+        # =====================================================================
+        # HELPER FUNCTION: Wait for user input
+        # =====================================================================
+
         def wait_for_key():
-            """Wait for Enter to continue or ESC to exit"""
+            """
+            Wait for Enter (continue) or ESC (exit).
+            Returns True if Enter was pressed, False if ESC.
+            """
             nonlocal next_flag, exit_flag
             next_flag = False
+
+            # Show prompt at bottom of screen
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0x07E0, 0x0000)
+            Lcd.setTextColor(0x07E0, 0x0000)  # Green
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
+
+            # Wait for either flag
             while not next_flag and not exit_flag:
                 M5.update()
                 time.sleep(0.01)
-            return not exit_flag
+
+            return not exit_flag  # True = continue, False = exit
 
         print("Animation Demo - Enter=Next, ESC=Exit")
 
         # =====================================================================
-        # CREATE ANIMATED OBJECTS
+        # HELPER FUNCTION: Create animated balls
         # =====================================================================
-        # Each ball has position (x,y), velocity (vx,vy), size, and color
-        # RGB565 colors: 0xF800=Red, 0x07E0=Green, 0x001F=Blue,
-        #                0xFFE0=Yellow, 0xF81F=Magenta, 0x07FF=Cyan
 
         def create_balls(count=5):
+            """
+            Create a list of ball objects for animation.
+
+            Each ball has:
+            - x, y: Current position (float for smooth movement)
+            - vx, vy: Velocity (pixels per frame)
+            - size: Width/height in pixels
+            - color: RGB565 color value
+
+            WHY FLOATS FOR POSITION?
+            ------------------------
+            Using floats allows sub-pixel movement. A ball moving at 1.5 pixels
+            per frame will smoothly alternate between 1 and 2 pixel jumps,
+            looking smoother than integer-only movement.
+            """
             balls = []
+            colors = [0xF800, 0x07E0, 0x001F, 0xFFE0, 0xF81F]  # R, G, B, Y, M
             for i in range(count):
                 balls.append(
                     {
@@ -73,42 +165,53 @@ class AnimDemo:
                         "vx": random.choice([-3.0, -2.0, 2.0, 3.0]),
                         "vy": random.choice([-3.0, -2.0, 2.0, 3.0]),
                         "size": 15,
-                        "color": [0xF800, 0x07E0, 0x001F, 0xFFE0, 0xF81F][i % 5],
+                        "color": colors[i % len(colors)],
                     }
                 )
             return balls
 
         def update_balls(balls):
-            """Update ball positions and bounce off walls"""
+            """
+            Update ball positions and bounce off walls.
+
+            BOUNCE LOGIC:
+            -------------
+            When a ball hits an edge, we reverse its velocity in that direction.
+            This creates the classic "bouncing ball" effect.
+            """
             for ball in balls:
+                # Move ball by its velocity
                 ball["x"] += ball["vx"]
                 ball["y"] += ball["vy"]
+
+                # Bounce off left/right edges
                 if ball["x"] <= 0 or ball["x"] >= SCREEN_W - ball["size"]:
-                    ball["vx"] = -ball["vx"]
+                    ball["vx"] = -ball["vx"]  # Reverse horizontal velocity
+
+                # Bounce off top/bottom edges
                 if ball["y"] <= 0 or ball["y"] >= SCREEN_H - ball["size"]:
-                    ball["vy"] = -ball["vy"]
+                    ball["vy"] = -ball["vy"]  # Reverse vertical velocity
 
         # =====================================================================
         # DEMO 1: Direct LCD Drawing (FLICKERY)
         # =====================================================================
-        # Drawing directly to Lcd causes flicker because:
-        # 1. fillScreen() clears everything - screen goes black
-        # 2. Then we draw objects - they appear
-        # 3. This clear/draw cycle is visible to the eye as flicker
+        # This demonstrates the WRONG way to do animation.
+        # We clear the entire screen each frame, then redraw everything.
+        # The user sees the screen go black between frames = FLICKER!
 
         Lcd.fillScreen(0x0000)
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(0xFFFF, 0x0000)  # White
         Lcd.setCursor(10, 5)
         Lcd.print("1. Direct Lcd")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0xF800, 0x0000)  # Red warning
+        Lcd.setTextColor(0xF800, 0x0000)  # Red = warning
         Lcd.setCursor(10, 25)
         Lcd.print("Watch the flicker!")
 
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(0x07FF, 0x0000)  # Cyan = info
         Lcd.setCursor(10, 40)
         Lcd.print("Lcd.fillScreen() + Lcd.fillRect()")
 
@@ -116,37 +219,40 @@ class AnimDemo:
             self.running = False
             return self
 
+        # Animate with direct LCD (flickery)
         balls = create_balls(5)
         next_flag = False
-        frame_count = 0
 
-        # Run flickery animation until Enter or ESC
         while not exit_flag and not next_flag:
             M5.update()
 
-            # THIS CAUSES FLICKER - clearing entire screen each frame
+            # THIS CAUSES FLICKER!
+            # The screen goes black for a moment before we draw the balls.
             Lcd.fillScreen(0x0000)
 
-            # Draw title
+            # Draw title (gets cleared and redrawn each frame)
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0xF800, 0x0000)
+            Lcd.setTextColor(0xF800, 0x0000)  # Red
             Lcd.setCursor(5, 5)
             Lcd.print("DIRECT LCD - FLICKERY")
 
-            # Update and draw balls directly to Lcd
+            # Update and draw balls directly to screen
             update_balls(balls)
             for ball in balls:
                 Lcd.fillRect(
-                    int(ball["x"]), int(ball["y"]), ball["size"], ball["size"], ball["color"]
+                    int(ball["x"]),
+                    int(ball["y"]),
+                    ball["size"],
+                    ball["size"],
+                    ball["color"],
                 )
 
             Lcd.setTextColor(0x07E0, 0x0000)
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
 
-            time.sleep(0.025)
-            frame_count += 1
+            time.sleep(0.025)  # ~40 fps
 
         if exit_flag:
             self.running = False
@@ -155,10 +261,9 @@ class AnimDemo:
         # =====================================================================
         # DEMO 2: Canvas Double Buffering (SMOOTH)
         # =====================================================================
-        # Lcd.newCanvas(w, h) creates an off-screen buffer
-        # Draw everything to canvas first (invisible to user)
-        # Then push() atomically copies entire buffer to screen
-        # No flicker because screen update is instantaneous
+        # This demonstrates the RIGHT way to do animation.
+        # We draw to an off-screen canvas, then push it to the screen.
+        # The screen update is atomic - no flicker!
 
         Lcd.fillScreen(0x0000)
         Lcd.setTextSize(2)
@@ -184,22 +289,23 @@ class AnimDemo:
             return self
 
         # Create canvas for double buffering
+        # This allocates memory for an off-screen buffer
         canvas = Lcd.newCanvas(SCREEN_W, SCREEN_H)
         canvas.setFont(Widgets.FONTS.ASCII7)
 
+        # Reset balls for fresh animation
         balls = create_balls(5)
         next_flag = False
 
-        # Run smooth animation until Enter or ESC
         while not exit_flag and not next_flag:
             M5.update()
 
-            # Draw everything to off-screen canvas (no flicker)
+            # Draw everything to canvas (OFF-SCREEN, invisible to user)
             canvas.fillScreen(0x0000)
 
             # Draw title to canvas
             canvas.setTextSize(1)
-            canvas.setTextColor(0x07E0, 0x0000)
+            canvas.setTextColor(0x07E0, 0x0000)  # Green
             canvas.setCursor(5, 5)
             canvas.print("CANVAS BUFFER - SMOOTH")
 
@@ -207,27 +313,33 @@ class AnimDemo:
             update_balls(balls)
             for ball in balls:
                 canvas.fillRect(
-                    int(ball["x"]), int(ball["y"]), ball["size"], ball["size"], ball["color"]
+                    int(ball["x"]),
+                    int(ball["y"]),
+                    ball["size"],
+                    ball["size"],
+                    ball["color"],
                 )
 
             canvas.setTextColor(0x07E0, 0x0000)
             canvas.setCursor(0, SCREEN_H - 10)
             canvas.print("Enter=Next  ESC=Exit")
 
-            # Atomic blit to screen - this is the magic!
+            # THE MAGIC: Copy entire canvas to screen at once!
+            # This is atomic - no intermediate states visible.
             canvas.push(0, 0)
 
             time.sleep(0.025)
 
         if exit_flag:
-            canvas.delete()
+            canvas.delete()  # Free memory!
             self.running = False
             return self
 
         # =====================================================================
         # DEMO 3: Side-by-Side Comparison
         # =====================================================================
-        # Split screen: left half direct draw, right half canvas
+        # Split screen: left half uses direct draw, right half uses canvas.
+        # Now you can directly compare the techniques!
 
         Lcd.fillScreen(0x0000)
         Lcd.setTextSize(2)
@@ -245,15 +357,18 @@ class AnimDemo:
             self.running = False
             return self
 
-        # Create a smaller canvas for right half only
+        # Create smaller canvas for right half only
         canvas.delete()
         half_w = SCREEN_W // 2
         canvas = Lcd.newCanvas(half_w, SCREEN_H)
         canvas.setFont(Widgets.FONTS.ASCII7)
 
-        # Create balls for each side
-        balls_left = []
-        balls_right = []
+        # Create separate ball sets for each side
+        balls_left = []  # Will flicker (direct draw)
+        balls_right = []  # Will be smooth (canvas)
+        colors_left = [0xF800, 0xFFE0, 0xF81F]  # Red, Yellow, Magenta
+        colors_right = [0x07E0, 0x07FF, 0x001F]  # Green, Cyan, Blue
+
         for i in range(3):
             balls_left.append(
                 {
@@ -262,7 +377,7 @@ class AnimDemo:
                     "vx": random.choice([-2.0, 2.0]),
                     "vy": random.choice([-2.0, 2.0]),
                     "size": 12,
-                    "color": [0xF800, 0xFFE0, 0xF81F][i],
+                    "color": colors_left[i],
                 }
             )
             balls_right.append(
@@ -272,7 +387,7 @@ class AnimDemo:
                     "vx": random.choice([-2.0, 2.0]),
                     "vy": random.choice([-2.0, 2.0]),
                     "size": 12,
-                    "color": [0x07E0, 0x07FF, 0x001F][i],
+                    "color": colors_right[i],
                 }
             )
 
@@ -282,12 +397,14 @@ class AnimDemo:
             M5.update()
 
             # LEFT SIDE: Direct draw (flickery)
+            # Clear just the left half
             Lcd.fillRect(0, 0, half_w, SCREEN_H, 0x0000)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0xF800, 0x0000)
+            Lcd.setTextColor(0xF800, 0x0000)  # Red label
             Lcd.setCursor(5, 5)
             Lcd.print("DIRECT")
 
+            # Update and draw left balls
             for ball in balls_left:
                 ball["x"] += ball["vx"]
                 ball["y"] += ball["vy"]
@@ -296,16 +413,21 @@ class AnimDemo:
                 if ball["y"] <= 15 or ball["y"] >= SCREEN_H - ball["size"]:
                     ball["vy"] = -ball["vy"]
                 Lcd.fillRect(
-                    int(ball["x"]), int(ball["y"]), ball["size"], ball["size"], ball["color"]
+                    int(ball["x"]),
+                    int(ball["y"]),
+                    ball["size"],
+                    ball["size"],
+                    ball["color"],
                 )
 
             # RIGHT SIDE: Canvas (smooth)
             canvas.fillScreen(0x0000)
             canvas.setTextSize(1)
-            canvas.setTextColor(0x07E0, 0x0000)
+            canvas.setTextColor(0x07E0, 0x0000)  # Green label
             canvas.setCursor(5, 5)
             canvas.print("CANVAS")
 
+            # Update and draw right balls
             for ball in balls_right:
                 ball["x"] += ball["vx"]
                 ball["y"] += ball["vy"]
@@ -314,10 +436,15 @@ class AnimDemo:
                 if ball["y"] <= 15 or ball["y"] >= SCREEN_H - ball["size"]:
                     ball["vy"] = -ball["vy"]
                 canvas.fillRect(
-                    int(ball["x"]), int(ball["y"]), ball["size"], ball["size"], ball["color"]
+                    int(ball["x"]),
+                    int(ball["y"]),
+                    ball["size"],
+                    ball["size"],
+                    ball["color"],
                 )
 
-            canvas.push(half_w, 0)  # Push to right half
+            # Push canvas to RIGHT half of screen
+            canvas.push(half_w, 0)
 
             # Draw divider line
             Lcd.drawLine(half_w, 0, half_w, SCREEN_H, 0xFFFF)
@@ -327,11 +454,12 @@ class AnimDemo:
         # =====================================================================
         # CLEANUP
         # =====================================================================
-        # Always delete canvas when done to free memory
+        # IMPORTANT: Always delete canvas when done to free memory!
+        # MicroPython has limited RAM, and canvases use a lot of it.
 
         canvas.delete()
 
-        # Show completion
+        # Show completion message
         Lcd.fillScreen(0x0000)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
         Lcd.setTextColor(0x07E0, 0x0000)
@@ -347,3 +475,24 @@ class AnimDemo:
         self.running = False
         print("Animation Demo exited")
         return self
+
+
+# =============================================================================
+# STANDALONE EXECUTION
+# =============================================================================
+
+if __name__ == "__main__":
+    import M5
+    import machine
+    from hardware import KeyboardI2C
+    from M5 import Lcd
+
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    i2c1 = machine.I2C(1, scl=machine.Pin(9), sda=machine.Pin(8), freq=400000)
+    intr_pin = machine.Pin(11, mode=machine.Pin.IN, pull=None)
+    kb = KeyboardI2C(i2c1, intr_pin=intr_pin, mode=KeyboardI2C.ASCII_MODE)
+
+    AnimDemo(kb).run()

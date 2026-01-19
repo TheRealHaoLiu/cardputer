@@ -1,6 +1,60 @@
-# LCD Demo - Reference for display features on M5Stack Cardputer
-# Press Enter/OK to advance sections, ESC to exit
-# Covers brightness, shapes, and other LCD capabilities
+"""
+LCD Demo - Graphics and Display Features on M5Stack Cardputer
+=============================================================
+
+Learn to draw shapes, control brightness, generate QR codes,
+and query display properties.
+
+CONCEPTS COVERED:
+-----------------
+1. Brightness Control - setBrightness(0-255)
+2. Basic Shapes - Lines, rectangles, circles
+3. Advanced Shapes - Triangles, rounded rects, ellipses, arcs
+4. Pixel Drawing - Individual pixel manipulation
+5. QR Codes - Generate QR codes on screen
+6. Display Info - Query dimensions, rotation, color depth
+
+SHAPE DRAWING API:
+------------------
+Lines and Points:
+    Lcd.drawPixel(x, y, color)
+    Lcd.drawLine(x1, y1, x2, y2, color)
+
+Rectangles:
+    Lcd.drawRect(x, y, w, h, color)        # Outline
+    Lcd.fillRect(x, y, w, h, color)        # Filled
+    Lcd.drawRoundRect(x, y, w, h, r, color)
+    Lcd.fillRoundRect(x, y, w, h, r, color)
+
+Circles and Ellipses:
+    Lcd.drawCircle(x, y, r, color)
+    Lcd.fillCircle(x, y, r, color)
+    Lcd.drawEllipse(x, y, rx, ry, color)
+    Lcd.fillEllipse(x, y, rx, ry, color)
+
+Triangles:
+    Lcd.drawTriangle(x1, y1, x2, y2, x3, y3, color)
+    Lcd.fillTriangle(x1, y1, x2, y2, x3, y3, color)
+
+Arcs:
+    Lcd.drawArc(x, y, r1, r2, start_angle, end_angle, color)
+    Lcd.fillArc(x, y, r1, r2, start_angle, end_angle, color)
+
+QR Codes:
+    Lcd.drawQR(text, x, y, width, version)  # version 1-40
+
+Display Info:
+    Lcd.width(), Lcd.height()
+    Lcd.getRotation(), Lcd.getBrightness()
+    Lcd.getColorDepth()
+
+CONTROLS:
+---------
+- , (comma) = Decrease brightness
+- . (period) = Increase brightness
+- Enter = Advance to next section
+- ESC = Exit to launcher
+"""
 
 import time
 
@@ -372,3 +426,20 @@ class LcdDemo:
         self.running = False
         print("LCD Demo exited")
         return self
+
+
+if __name__ == "__main__":
+    import M5
+    import machine
+    from hardware import KeyboardI2C
+    from M5 import Lcd
+
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    i2c1 = machine.I2C(1, scl=machine.Pin(9), sda=machine.Pin(8), freq=400000)
+    intr_pin = machine.Pin(11, mode=machine.Pin.IN, pull=None)
+    kb = KeyboardI2C(i2c1, intr_pin=intr_pin, mode=KeyboardI2C.ASCII_MODE)
+
+    LcdDemo(kb).run()

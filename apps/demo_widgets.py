@@ -1,6 +1,58 @@
-# Widgets Demo - Using the widgets module for cleaner UI
-# The widgets module provides Label and Image classes that wrap Lcd drawing
-# Press Enter to advance sections, ESC to exit
+"""
+Widgets Demo - High-Level UI Components
+=======================================
+
+The widgets module provides Label and Image classes that simplify
+common UI patterns. Labels handle text with automatic clearing/redraw.
+
+CONCEPTS COVERED:
+-----------------
+1. widgets.Label Basics - Creating and using labels
+2. Text Alignment - LEFT/CENTER/RIGHT_ALIGNED
+3. Dynamic Updates - set_text() auto-clears old content
+4. Long Text Modes - Truncation (LONG_DOT) and wrapping (LONG_WARP)
+5. UI Patterns - Title bars, cards, dashboards
+
+WHY USE widgets.Label?
+----------------------
+When you update text with Lcd.print(), old text remains visible.
+You have to manually clear the area first with fillRect().
+
+widgets.Label handles this automatically:
+    label.set_text("New text")  # Old text cleared, new text drawn
+
+LABEL CONSTRUCTOR:
+------------------
+    label = widgets.Label(
+        text,           # Initial text
+        x, y,           # Position (meaning depends on alignment)
+        w=width,        # Max width (optional)
+        h=height,       # Max height (optional)
+        font_align=..., # LEFT/CENTER/RIGHT_ALIGNED
+        fg_color=...,   # Text color (RGB565)
+        bg_color=...,   # Background color (MUST match actual background!)
+        font=...,       # Font from Widgets.FONTS
+    )
+
+ALIGNMENT EXPLAINED:
+--------------------
+- LEFT_ALIGNED: x is LEFT edge of text
+- CENTER_ALIGNED: x is CENTER point of text
+- RIGHT_ALIGNED: x is RIGHT edge of text
+
+LONG TEXT MODES:
+----------------
+- LONG_DOT: Truncate with "..." if too wide
+- LONG_WARP: Wrap to multiple lines
+
+IMPORTANT: bg_color must match your background exactly, or you'll
+see rectangles when text updates!
+
+CONTROLS:
+---------
+- Enter = Advance to next section
+- ESC = Exit to launcher
+"""
 
 import time
 
@@ -435,3 +487,20 @@ class WidgetsDemo:
         self.running = False
         print("Widgets Demo exited")
         return self
+
+
+if __name__ == "__main__":
+    import M5
+    import machine
+    from hardware import KeyboardI2C
+    from M5 import Lcd
+
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    i2c1 = machine.I2C(1, scl=machine.Pin(9), sda=machine.Pin(8), freq=400000)
+    intr_pin = machine.Pin(11, mode=machine.Pin.IN, pull=None)
+    kb = KeyboardI2C(i2c1, intr_pin=intr_pin, mode=KeyboardI2C.ASCII_MODE)
+
+    WidgetsDemo(kb).run()

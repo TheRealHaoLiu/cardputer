@@ -1,5 +1,42 @@
-# Sound Demo - Reference for audio on M5Stack Cardputer
-# Press Enter/OK to advance, ESC to exit
+"""
+Sound Demo - Audio Output on M5Stack Cardputer
+==============================================
+
+Learn how to generate sounds on the Cardputer using the built-in speaker.
+Great for audio feedback, alerts, and simple music.
+
+CONCEPTS COVERED:
+-----------------
+1. Basic Tones - Speaker.tone(frequency_hz, duration_ms)
+2. Musical Notes - Frequency values for musical scale
+3. Volume Control - setVolume(0-255)
+4. Sound Effects - Combining tones for beeps, sweeps, alerts
+5. Frequency Sweep - Smooth tone transitions
+
+COMMON NOTE FREQUENCIES (Hz):
+-----------------------------
+    C4=262  D4=294  E4=330  F4=349
+    G4=392  A4=440  B4=494  C5=523
+
+SPEAKER API QUICK REFERENCE:
+----------------------------
+    Speaker.tone(freq, duration_ms)  # Play tone
+    Speaker.setVolume(0-255)         # Set volume
+    Speaker.getVolume()              # Get current volume
+    Speaker.isPlaying()              # Check if playing
+    Speaker.stop()                   # Stop playback
+    Speaker.playWavFile(path)        # Play WAV file
+
+VOLUME CONVERSION:
+------------------
+To convert percentage to 0-255:
+    volume = int(percentage * 255 / 100)
+
+CONTROLS:
+---------
+- Enter = Advance to next section
+- ESC = Exit to launcher
+"""
 
 import time
 
@@ -301,3 +338,20 @@ class SoundDemo:
         self.running = False
         print("Sound Demo exited")
         return self
+
+
+if __name__ == "__main__":
+    import M5
+    import machine
+    from hardware import KeyboardI2C
+    from M5 import Lcd
+
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    i2c1 = machine.I2C(1, scl=machine.Pin(9), sda=machine.Pin(8), freq=400000)
+    intr_pin = machine.Pin(11, mode=machine.Pin.IN, pull=None)
+    kb = KeyboardI2C(i2c1, intr_pin=intr_pin, mode=KeyboardI2C.ASCII_MODE)
+
+    SoundDemo(kb).run()

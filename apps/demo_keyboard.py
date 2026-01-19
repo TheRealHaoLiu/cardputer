@@ -1,6 +1,54 @@
-# Keyboard Demo - Reference for keyboard input on M5Stack Cardputer
-# Press Enter/OK to advance sections, ESC to exit
-# Explores key events, modifiers, special keys, and raw matrix positions
+"""
+Keyboard Demo - Input Handling on M5Stack Cardputer ADV
+========================================================
+
+Deep dive into the Cardputer's keyboard system. Learn how to handle
+keypresses, detect modifiers, and work with special keys.
+
+CONCEPTS COVERED:
+-----------------
+1. Key Events - keycode, state, row, col, modifier_mask
+2. Modifier Keys - CTRL, SHIFT, ALT, OPT detection
+3. Special Keys - Arrow keys via FN combinations
+4. Matrix Layout - Physical key positions (4 rows x 14 cols)
+
+KEY EVENT PROPERTIES:
+---------------------
+    event.keycode       - ASCII code (0-127) or special code
+    event.state         - True=pressed, False=released
+    event.row           - Matrix row (0-3)
+    event.col           - Matrix column (0-13)
+    event.modifier_mask - Bitmask of active modifiers
+
+MODIFIER MASK BITS:
+-------------------
+    0x01 = CTRL
+    0x02 = SHIFT
+    0x04 = ALT
+    0x08 = OPT
+
+COMMON KEY CODES:
+-----------------
+    0x1B (27)  = ESC
+    0x0D (13)  = Enter
+    0x08 (8)   = Backspace
+    0x7F (127) = Delete (FN+Backspace)
+    180-183    = Arrow keys (via FN)
+
+FN KEY COMBINATIONS:
+--------------------
+    FN + ;  = UP    (181)
+    FN + .  = DOWN  (182)
+    FN + ,  = LEFT  (180)
+    FN + /  = RIGHT (183)
+    FN + BS = DEL   (127)
+
+CONTROLS:
+---------
+- Press any key = See event data in real-time
+- Enter = Advance to next section
+- ESC = Exit to launcher
+"""
 
 import time
 
@@ -411,3 +459,20 @@ class KeyboardDemo:
         self.running = False
         print("Keyboard Demo exited")
         return self
+
+
+if __name__ == "__main__":
+    import M5
+    import machine
+    from hardware import KeyboardI2C
+    from M5 import Lcd
+
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    i2c1 = machine.I2C(1, scl=machine.Pin(9), sda=machine.Pin(8), freq=400000)
+    intr_pin = machine.Pin(11, mode=machine.Pin.IN, pull=None)
+    kb = KeyboardI2C(i2c1, intr_pin=intr_pin, mode=KeyboardI2C.ASCII_MODE)
+
+    KeyboardDemo(kb).run()
