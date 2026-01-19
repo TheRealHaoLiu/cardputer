@@ -61,7 +61,7 @@ default = "main.py"
 positional = true
 
 [tool.poe.tasks.deploy]
-help = "Deploy all demos to device flash"
+help = "Deploy to flash (WARNING: replaces main.py, lib/*, apps/*)"
 shell = "./deploy.sh"
 
 [tool.poe.tasks.ls]

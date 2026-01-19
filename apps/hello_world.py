@@ -50,7 +50,8 @@ from M5 import Lcd, Widgets
 
 import sys
 
-for lib_path in ["/flash/lib", "/remote/lib"]:
+# Path setup for imports (need parent of lib/ for "from lib.x" imports)
+for lib_path in ["/flash", "/remote"]:
     if lib_path not in sys.path:
         sys.path.insert(0, lib_path)
 
@@ -150,3 +151,17 @@ class HelloWorld(AppBase):
         # The sleep prevents busy-waiting and allows other tasks to run
         while True:
             await asyncio.sleep_ms(100)
+
+
+if __name__ == "__main__":
+    # Standalone mode - run this app directly, ESC exits to REPL
+    import M5
+    M5.begin()
+    Lcd.setRotation(1)
+    Lcd.setBrightness(40)
+
+    from lib.framework import Framework
+
+    fw = Framework()
+    fw.install(HelloWorld())
+    fw.start()

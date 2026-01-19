@@ -32,8 +32,8 @@ import os
 
 from M5 import Lcd, Widgets
 
-# Path setup for imports
-for lib_path in ["/flash/lib", "/remote/lib"]:
+# Path setup for imports (need parent of lib/ for "from lib.x" imports)
+for lib_path in ["/flash", "/remote"]:
     if lib_path not in sys.path:
         sys.path.insert(0, lib_path)
 
@@ -106,6 +106,10 @@ class LauncherApp(AppBase):
         - Launcher first starts (on boot)
         - Returning from another app (after ESC)
         """
+        # Refresh app list each time launcher becomes active
+        if self._fw:
+            self._fw.discover_apps()
+
         Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(2)
