@@ -30,7 +30,7 @@ HOW TO USE CANVAS IN M5STACK:
     canvas = Lcd.newCanvas(240, 135)
 
     # Draw to canvas (same API as Lcd)
-    canvas.fillScreen(0x0000)
+    canvas.fillScreen(Lcd.COLOR.BLACK)
     canvas.fillRect(x, y, w, h, color)
     canvas.print("Hello")
 
@@ -122,7 +122,7 @@ class AnimDemo:
             # Show prompt at bottom of screen
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0x07E0, 0x0000)  # Green
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
 
@@ -156,7 +156,7 @@ class AnimDemo:
             looking smoother than integer-only movement.
             """
             balls = []
-            colors = [0xF800, 0x07E0, 0x001F, 0xFFE0, 0xF81F]  # R, G, B, Y, M
+            colors = [Lcd.COLOR.RED, Lcd.COLOR.GREEN, Lcd.COLOR.BLUE, Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA]
             for i in range(count):
                 balls.append(
                     {
@@ -199,19 +199,19 @@ class AnimDemo:
         # We clear the entire screen each frame, then redraw everything.
         # The user sees the screen go black between frames = FLICKER!
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)  # White
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)  # White
         Lcd.setCursor(10, 5)
         Lcd.print("1. Direct Lcd")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0xF800, 0x0000)  # Red = warning
+        Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)  # Red = warning
         Lcd.setCursor(10, 25)
         Lcd.print("Watch the flicker!")
 
-        Lcd.setTextColor(0x07FF, 0x0000)  # Cyan = info
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)  # Cyan = info
         Lcd.setCursor(10, 40)
         Lcd.print("Lcd.fillScreen() + Lcd.fillRect()")
 
@@ -228,12 +228,12 @@ class AnimDemo:
 
             # THIS CAUSES FLICKER!
             # The screen goes black for a moment before we draw the balls.
-            Lcd.fillScreen(0x0000)
+            Lcd.fillScreen(Lcd.COLOR.BLACK)
 
             # Draw title (gets cleared and redrawn each frame)
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0xF800, 0x0000)  # Red
+            Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)  # Red
             Lcd.setCursor(5, 5)
             Lcd.print("DIRECT LCD - FLICKERY")
 
@@ -248,7 +248,7 @@ class AnimDemo:
                     ball["color"],
                 )
 
-            Lcd.setTextColor(0x07E0, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
 
@@ -265,18 +265,18 @@ class AnimDemo:
         # We draw to an off-screen canvas, then push it to the screen.
         # The screen update is atomic - no flicker!
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("2. Canvas Buffer")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07E0, 0x0000)  # Green = good
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green = good
         Lcd.setCursor(10, 25)
         Lcd.print("Smooth! No flicker!")
 
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 40)
         Lcd.print("canvas = Lcd.newCanvas(w, h)")
         Lcd.setCursor(10, 52)
@@ -301,11 +301,11 @@ class AnimDemo:
             M5.update()
 
             # Draw everything to canvas (OFF-SCREEN, invisible to user)
-            canvas.fillScreen(0x0000)
+            canvas.fillScreen(Lcd.COLOR.BLACK)
 
             # Draw title to canvas
             canvas.setTextSize(1)
-            canvas.setTextColor(0x07E0, 0x0000)  # Green
+            canvas.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green
             canvas.setCursor(5, 5)
             canvas.print("CANVAS BUFFER - SMOOTH")
 
@@ -320,7 +320,7 @@ class AnimDemo:
                     ball["color"],
                 )
 
-            canvas.setTextColor(0x07E0, 0x0000)
+            canvas.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
             canvas.setCursor(0, SCREEN_H - 10)
             canvas.print("Enter=Next  ESC=Exit")
 
@@ -341,14 +341,14 @@ class AnimDemo:
         # Split screen: left half uses direct draw, right half uses canvas.
         # Now you can directly compare the techniques!
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("3. Side-by-Side")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 30)
         Lcd.print("Left=Direct  Right=Canvas")
 
@@ -366,8 +366,8 @@ class AnimDemo:
         # Create separate ball sets for each side
         balls_left = []  # Will flicker (direct draw)
         balls_right = []  # Will be smooth (canvas)
-        colors_left = [0xF800, 0xFFE0, 0xF81F]  # Red, Yellow, Magenta
-        colors_right = [0x07E0, 0x07FF, 0x001F]  # Green, Cyan, Blue
+        colors_left = [Lcd.COLOR.RED, Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA]
+        colors_right = [Lcd.COLOR.GREEN, Lcd.COLOR.CYAN, Lcd.COLOR.BLUE]
 
         for i in range(3):
             balls_left.append(
@@ -398,9 +398,9 @@ class AnimDemo:
 
             # LEFT SIDE: Direct draw (flickery)
             # Clear just the left half
-            Lcd.fillRect(0, 0, half_w, SCREEN_H, 0x0000)
+            Lcd.fillRect(0, 0, half_w, SCREEN_H, Lcd.COLOR.BLACK)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0xF800, 0x0000)  # Red label
+            Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)  # Red label
             Lcd.setCursor(5, 5)
             Lcd.print("DIRECT")
 
@@ -421,9 +421,9 @@ class AnimDemo:
                 )
 
             # RIGHT SIDE: Canvas (smooth)
-            canvas.fillScreen(0x0000)
+            canvas.fillScreen(Lcd.COLOR.BLACK)
             canvas.setTextSize(1)
-            canvas.setTextColor(0x07E0, 0x0000)  # Green label
+            canvas.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green label
             canvas.setCursor(5, 5)
             canvas.print("CANVAS")
 
@@ -447,7 +447,7 @@ class AnimDemo:
             canvas.push(half_w, 0)
 
             # Draw divider line
-            Lcd.drawLine(half_w, 0, half_w, SCREEN_H, 0xFFFF)
+            Lcd.drawLine(half_w, 0, half_w, SCREEN_H, Lcd.COLOR.WHITE)
 
             time.sleep(0.025)
 
@@ -460,13 +460,13 @@ class AnimDemo:
         canvas.delete()
 
         # Show completion message
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("Demo Complete!", 120, 50)
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(20, 80)
         Lcd.print("See demo_anim.py for code")
 

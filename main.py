@@ -111,19 +111,19 @@ M5.begin()  # Initialize M5Stack hardware
 
 Lcd.setRotation(1)  # Landscape orientation
 Lcd.setBrightness(40)  # 0-255, lower = dimmer = less battery drain
-Lcd.fillScreen(0x000000)  # Clear to black (RGB565 format, explained below)
-Lcd.setTextColor(0xFFFFFF, 0x000000)  # White text on black background
+Lcd.fillScreen(Lcd.COLOR.BLACK)  # Clear to black
+Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)  # White text on black background
 
-# COLOR FORMAT: RGB565
-# --------------------
-# Colors are 16-bit values: 5 bits red, 6 bits green, 5 bits blue.
-# Common colors:
-#   0x0000 = Black      0xFFFF = White
-#   0xF800 = Red        0x07E0 = Green      0x001F = Blue
-#   0xFFE0 = Yellow     0xF81F = Magenta    0x07FF = Cyan
+# COLOR CONSTANTS (Lcd.COLOR.*)
+# ------------------------------
+# Use built-in color constants for cleaner, more readable code:
+#   Lcd.COLOR.BLACK, Lcd.COLOR.WHITE
+#   Lcd.COLOR.RED, Lcd.COLOR.GREEN, Lcd.COLOR.BLUE
+#   Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA, Lcd.COLOR.CYAN
+#   Lcd.COLOR.ORANGE, Lcd.COLOR.PINK, Lcd.COLOR.PURPLE
+#   Lcd.COLOR.LIGHTGREY, Lcd.COLOR.DARKGREY
 #
-# To convert RGB (0-255 each) to RGB565:
-#   color = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
+# The library uses 24-bit RGB internally and handles display conversion.
 
 # KEYBOARD SETUP
 # --------------
@@ -280,10 +280,10 @@ def draw_menu():
         scroll_offset = selected - VISIBLE_ITEMS + 1
 
     # Clear screen and draw title
-    Lcd.fillScreen(0x000000)
+    Lcd.fillScreen(Lcd.COLOR.BLACK)
     Lcd.setFont(Widgets.FONTS.ASCII7)  # Monospace font, 6x9 pixels base size
     Lcd.setTextSize(2)  # 2x scale = 12x18 pixels per character
-    Lcd.setTextColor(0xFFFFFF, 0x000000)
+    Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
     Lcd.setCursor(0, 0)
     Lcd.print("Cardputer")
 
@@ -291,15 +291,15 @@ def draw_menu():
     # This helps you know if you're running mounted files or deployed files
     Lcd.setTextSize(1)
     if RUN_MODE == "remote":
-        Lcd.setTextColor(0x07FF, 0x000000)  # Cyan for remote/development
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)  # Cyan for remote/development
     else:
-        Lcd.setTextColor(0x07E0, 0x000000)  # Green for flash/standalone
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green for flash/standalone
     Lcd.setCursor(200, 5)
     Lcd.print(RUN_MODE)
 
     # Reset text settings for menu items
     Lcd.setTextSize(2)
-    Lcd.setTextColor(0xFFFFFF, 0x000000)
+    Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
 
     # Draw visible menu items
     for i in range(VISIBLE_ITEMS):

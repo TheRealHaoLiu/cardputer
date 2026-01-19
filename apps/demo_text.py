@@ -9,7 +9,7 @@ CONCEPTS COVERED:
 -----------------
 1. Fonts - Built-in fonts and when to use each
 2. Font Scaling - setTextSize() for larger text
-3. Colors - RGB565 color format
+3. Colors - 24-bit RGB color format
 4. Text Measurement - textWidth() and fontHeight() for layout
 5. Alignment - drawString, drawCenterString, drawRightString
 6. Formatted Output - f-strings and printf()
@@ -21,13 +21,14 @@ AVAILABLE FONTS (Widgets.FONTS):
 - DejaVu9/12/18/24/40/56/72: Proportional fonts at various sizes
 - EFontCN24, EFontJA24, EFontKR24: CJK (Chinese/Japanese/Korean) fonts
 
-RGB565 COLOR FORMAT:
---------------------
-Colors are 16-bit values: 5 bits red, 6 bits green, 5 bits blue.
-Common colors:
-    0x0000 = Black      0xFFFF = White
-    0xF800 = Red        0x07E0 = Green      0x001F = Blue
-    0xFFE0 = Yellow     0xF81F = Magenta    0x07FF = Cyan
+COLOR CONSTANTS (Lcd.COLOR):
+----------------------------
+Use built-in color constants for cleaner code:
+    Lcd.COLOR.BLACK, Lcd.COLOR.WHITE
+    Lcd.COLOR.RED, Lcd.COLOR.GREEN, Lcd.COLOR.BLUE
+    Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA, Lcd.COLOR.CYAN
+    Lcd.COLOR.ORANGE, Lcd.COLOR.PINK, Lcd.COLOR.PURPLE
+Colors are 24-bit RGB (0xRRGGBB) - the library handles conversion.
 
 CONTROLS:
 ---------
@@ -72,7 +73,7 @@ class TextDemo:
             next_flag = False
             # Show prompt
             Lcd.setFont(Widgets.FONTS.ASCII7)
-            Lcd.setTextColor(0x07E0, 0x0000)  # Green
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
             while not next_flag and not exit_flag:
@@ -90,14 +91,14 @@ class TextDemo:
         #   DejaVu9/12/18/24/40/56/72 - proportional fonts
         #   EFontCN24, EFontJA24, EFontKR24 - CJK fonts
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 10)
         Lcd.print("1. Basic Text")
 
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 40)
         Lcd.print("setFont(Widgets.FONTS.xxx)")
         Lcd.setCursor(10, 55)
@@ -119,15 +120,15 @@ class TextDemo:
         # ASCII7 at size 2 = 12x18 pixels per character
         # ASCII7 at size 3 = 18x27 pixels per character
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
 
         Lcd.setTextSize(1)
         Lcd.setCursor(0, 0)
         Lcd.print("2. setTextSize()")
 
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, 15)
         Lcd.print("Size 1: 6x9px")
 
@@ -146,32 +147,31 @@ class TextDemo:
             return self
 
         # =====================================================================
-        # DEMO 3: Colors (RGB565 format)
+        # DEMO 3: Color Constants (Lcd.COLOR.*)
         # =====================================================================
-        # RGB565: 5 bits red, 6 bits green, 5 bits blue
-        #   0x0000 = Black    0xFFFF = White
-        #   0xF800 = Red      0x07E0 = Green    0x001F = Blue
-        #   0xFFE0 = Yellow   0xF81F = Magenta  0x07FF = Cyan
+        # Use Lcd.COLOR.* constants for cleaner, more readable code.
+        # Available: BLACK, WHITE, RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN,
+        #            ORANGE, PINK, PURPLE, NAVY, DARKGREEN, DARKCYAN, etc.
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu12)
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 0)
-        Lcd.print("3. RGB565 Colors")
+        Lcd.print("3. Lcd.COLOR Constants")
 
         colors = [
-            (0xF800, "0xF800 Red"),
-            (0x07E0, "0x07E0 Green"),
-            (0x001F, "0x001F Blue"),
-            (0xFFE0, "0xFFE0 Yellow"),
-            (0xF81F, "0xF81F Magenta"),
-            (0x07FF, "0x07FF Cyan"),
+            (Lcd.COLOR.RED, "Lcd.COLOR.RED"),
+            (Lcd.COLOR.GREEN, "Lcd.COLOR.GREEN"),
+            (Lcd.COLOR.BLUE, "Lcd.COLOR.BLUE"),
+            (Lcd.COLOR.YELLOW, "Lcd.COLOR.YELLOW"),
+            (Lcd.COLOR.MAGENTA, "Lcd.COLOR.MAGENTA"),
+            (Lcd.COLOR.CYAN, "Lcd.COLOR.CYAN"),
         ]
 
         y = 18
         for color, name in colors:
-            Lcd.setTextColor(color, 0x0000)
+            Lcd.setTextColor(color, Lcd.COLOR.BLACK)
             Lcd.setCursor(10, y)
             Lcd.print(name)
             y += 15
@@ -186,14 +186,14 @@ class TextDemo:
         # textWidth(text) - returns pixel width of string
         # fontHeight() - returns pixel height of current font
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 0)
         Lcd.print("4. Text Measurement")
 
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
 
         text = "Centered!"
         width = Lcd.textWidth(text)
@@ -207,7 +207,7 @@ class TextDemo:
         Lcd.print(text)
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 20)
         Lcd.print(f"textWidth()={width}")
         Lcd.setCursor(10, 30)
@@ -224,25 +224,25 @@ class TextDemo:
         # drawCenterString(text, x, y) - centered at x
         # drawRightString(text, x, y) - right aligned at x
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 0)
         Lcd.print("5. Draw Methods")
 
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
 
         # Draw vertical line at x=120 (center)
-        Lcd.drawLine(120, 20, 120, 110, 0xF800)
+        Lcd.drawLine(120, 20, 120, 110, Lcd.COLOR.RED)
 
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.drawString("drawString", 120, 30)
 
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("drawCenterString", 120, 55)
 
-        Lcd.setTextColor(0xF81F, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.MAGENTA, Lcd.COLOR.BLACK)
         Lcd.drawRightString("drawRightString", 120, 80)
 
         if not wait_for_key():
@@ -254,15 +254,15 @@ class TextDemo:
         # =====================================================================
         # Use f-strings or printf() for formatting
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 0)
         Lcd.print("6. Formatted Output")
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
 
         score = 42
         lives = 3
@@ -291,13 +291,13 @@ class TextDemo:
         # - Draw a second copy of text for seamless looping
         # - Use drawString() instead of print() to avoid text wrapping
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 0)
         Lcd.print("7. Scrolling Text")
 
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 18)
         Lcd.print("Marquee effect with canvas:")
 
@@ -317,13 +317,13 @@ class TextDemo:
         text_y = 1  # 1px from top of canvas
 
         # Draw border around scroll area
-        Lcd.drawRect(canvas_x - 2, canvas_y - 2, canvas_w + 4, canvas_h + 4, 0xFFFF)
+        Lcd.drawRect(canvas_x - 2, canvas_y - 2, canvas_w + 4, canvas_h + 4, Lcd.COLOR.WHITE)
 
         # Create canvas for smooth animation (double buffering)
         # Canvas size determines the visible "viewport" for scrolling
         scroll_canvas = Lcd.newCanvas(canvas_w, canvas_h)
         scroll_canvas.setFont(Widgets.FONTS.DejaVu18)
-        scroll_canvas.setTextColor(0xFFE0, 0x0000)
+        scroll_canvas.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
 
         # Scroll offset starts at 0 (text visible from left edge)
         scroll_offset = 0
@@ -346,7 +346,7 @@ class TextDemo:
                 continue
 
             # Clear canvas each frame
-            scroll_canvas.fillScreen(0x0000)
+            scroll_canvas.fillScreen(Lcd.COLOR.BLACK)
 
             # Draw text at -scroll_offset (moves left as offset increases)
             # Text drawn at negative x is clipped by canvas boundary
@@ -375,7 +375,7 @@ class TextDemo:
         # Show explanation
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 80)
         Lcd.print("Key concepts:")
         Lcd.setCursor(10, 92)
@@ -392,13 +392,13 @@ class TextDemo:
         # =====================================================================
         # DONE
         # =====================================================================
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("Demo Complete!", 120, 50)
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(30, 80)
         Lcd.print("See demo_text.py for code")
 

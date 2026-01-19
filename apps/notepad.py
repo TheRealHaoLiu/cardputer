@@ -97,7 +97,7 @@ class Notepad:
         why their keypress had no effect. This is better UX.
         """
         # Draw red bar on right edge
-        Lcd.fillRect(SCREEN_W - 4, 0, 4, SCREEN_H, 0xF800)  # Red
+        Lcd.fillRect(SCREEN_W - 4, 0, 4, SCREEN_H, Lcd.COLOR.RED)  # Red
         time.sleep_ms(100)  # Brief pause
         # Clear it back to black
         Lcd.fillRect(SCREEN_W - 4, 0, 4, SCREEN_H, 0x000000)

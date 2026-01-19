@@ -100,7 +100,7 @@ class KeyboardDemo:
             next_flag = False
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0x07E0, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
             while not next_flag and not exit_flag:
@@ -115,20 +115,20 @@ class KeyboardDemo:
         # =====================================================================
         # Shows real-time key event data as you press keys
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("1. Key Inspector")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("Press any key to see event data")
 
         # Labels
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 45)
         Lcd.print("Keycode:")
         Lcd.setCursor(10, 57)
@@ -140,7 +140,7 @@ class KeyboardDemo:
         Lcd.setCursor(10, 93)
         Lcd.print("Mods:")
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 10)
         Lcd.print("Enter=Next  ESC=Exit")
 
@@ -155,7 +155,7 @@ class KeyboardDemo:
                 last_displayed = last_event
                 e = last_event
 
-                Lcd.setTextColor(0xFFE0, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
 
                 # Keycode (decimal and hex)
                 Lcd.setCursor(80, 45)
@@ -216,19 +216,19 @@ class KeyboardDemo:
         # =====================================================================
         # Shows how to detect modifier key combinations
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("2. Modifiers")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("Hold modifier + press a key")
 
         # Modifier reference
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 45)
         Lcd.print("modifier_mask bits:")
         Lcd.setCursor(10, 57)
@@ -236,11 +236,11 @@ class KeyboardDemo:
         Lcd.setCursor(10, 69)
         Lcd.print("0x04=ALT   0x08=OPT")
 
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 88)
         Lcd.print("Active:")
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 10)
         Lcd.print("Enter=Next  ESC=Exit")
 
@@ -255,7 +255,7 @@ class KeyboardDemo:
                 e = last_event
 
                 # Show active modifiers with visual indicators
-                Lcd.setTextColor(0xFFE0, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
                 Lcd.setCursor(70, 88)
 
                 parts = []
@@ -289,18 +289,18 @@ class KeyboardDemo:
         # =====================================================================
         # Arrow keys, DEL, and other FN combinations
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("3. Special Keys")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("FN key combinations:")
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 43)
         Lcd.print("FN + ;  = UP    (181)")
         Lcd.setCursor(10, 55)
@@ -312,14 +312,14 @@ class KeyboardDemo:
         Lcd.setCursor(10, 91)
         Lcd.print("FN + BS = DEL   (127)")
 
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.setCursor(150, 43)
         Lcd.print("Try it!")
 
         Lcd.setCursor(10, 108)
         Lcd.print("Last:")
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 10)
         Lcd.print("Enter=Next  ESC=Exit")
 
@@ -333,7 +333,7 @@ class KeyboardDemo:
                 last_displayed = last_event
                 e = last_event
 
-                Lcd.setTextColor(0xFFE0, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
                 Lcd.setCursor(50, 108)
 
                 # Show arrow key names
@@ -358,19 +358,19 @@ class KeyboardDemo:
         # =====================================================================
         # Shows the physical layout and matrix positions
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("4. Matrix Layout")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("4 rows x 14 cols (0-indexed)")
 
         # Simplified layout
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 43)
         Lcd.print("R0: ` 1 2 3 4 5 6 7 8 9 0 - = BS")
         Lcd.setCursor(10, 55)
@@ -380,11 +380,11 @@ class KeyboardDemo:
         Lcd.setCursor(10, 79)
         Lcd.print("R3: CT OP AL Z X C V B N M ,./ _")
 
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 96)
         Lcd.print("Press key to see (row,col)")
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 10)
         Lcd.print("Enter=Next  ESC=Exit")
 
@@ -398,7 +398,7 @@ class KeyboardDemo:
                 last_displayed = last_event
                 e = last_event
 
-                Lcd.setTextColor(0xFFE0, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
                 Lcd.setCursor(10, 108)
                 if 0x20 <= e.keycode <= 0x7E:
                     Lcd.print(f"'{chr(e.keycode)}' at ({e.row},{e.col})    ")
@@ -415,14 +415,14 @@ class KeyboardDemo:
         # DEMO 5: API Reference
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("5. API Reference")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         y = 28
         apis = [
             "kb.set_keyevent_callback(fn)",
@@ -444,13 +444,13 @@ class KeyboardDemo:
         # =====================================================================
         # DONE
         # =====================================================================
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("Demo Complete!", 120, 50)
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(20, 80)
         Lcd.print("See demo_keyboard.py for code")
 

@@ -74,7 +74,7 @@ class SoundDemo:
             next_flag = False
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0x07E0, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
             while not next_flag and not exit_flag:
@@ -94,15 +94,15 @@ class SoundDemo:
         # Speaker.tone(frequency_hz, duration_ms)
         # Plays a square wave tone at the given frequency
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 10)
         Lcd.print("1. Basic Tone")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 40)
         Lcd.print("Speaker.tone(freq, duration_ms)")
         Lcd.setCursor(10, 55)
@@ -121,14 +121,14 @@ class SoundDemo:
         # Common note frequencies (Hz):
         #   C4=262, D4=294, E4=330, F4=349, G4=392, A4=440, B4=494, C5=523
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 10)
         Lcd.print("2. Musical Scale")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 40)
         Lcd.print("C4  D4  E4  F4  G4  A4  B4  C5")
         Lcd.setCursor(10, 55)
@@ -139,13 +139,13 @@ class SoundDemo:
 
         for i, (freq, name) in enumerate(zip(notes, note_names)):
             # Highlight current note
-            Lcd.setTextColor(0xFFE0, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
             Lcd.setCursor(10 + i * 28, 75)
             Lcd.print(name)
             Speaker.tone(freq, 200)
             time.sleep(0.25)
             # Unhighlight
-            Lcd.setTextColor(0x07FF, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
             Lcd.setCursor(10 + i * 28, 75)
             Lcd.print(name)
 
@@ -164,14 +164,14 @@ class SoundDemo:
         def vol_pct(percent):
             return int(percent * 255 / 100)
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 10)
         Lcd.print("3. Volume")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 40)
         Lcd.print("vol = int(pct * 255 / 100)")
 
@@ -180,7 +180,7 @@ class SoundDemo:
         for pct in percentages:
             vol = vol_pct(pct)
             Speaker.setVolume(vol)
-            Lcd.setTextColor(0xFFE0, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
             Lcd.setCursor(10, 60)
             Lcd.print(f"{pct:3}% = {vol:3}  ")
             Speaker.tone(440, 250)
@@ -197,14 +197,14 @@ class SoundDemo:
         # =====================================================================
         # Combine tones to create simple sound effects
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 10)
         Lcd.print("4. Sound Effects")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
 
         # Beep
         Lcd.setCursor(10, 40)
@@ -246,14 +246,14 @@ class SoundDemo:
         # =====================================================================
         # Continuous sweep through the full frequency range
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("5. Freq Sweep")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
 
         # Sweep up
         Lcd.setCursor(10, 35)
@@ -262,8 +262,8 @@ class SoundDemo:
         for freq in range(100, 8000, 100):
             # Draw frequency bar
             bar_x = int((freq - 100) / 7900 * 200)
-            Lcd.fillRect(20, 55, bar_x, 10, 0x07E0)
-            Lcd.fillRect(20 + bar_x, 55, 200 - bar_x, 10, 0x0000)
+            Lcd.fillRect(20, 55, bar_x, 10, Lcd.COLOR.GREEN)
+            Lcd.fillRect(20 + bar_x, 55, 200 - bar_x, 10, Lcd.COLOR.BLACK)
             Lcd.setCursor(20, 70)
             Lcd.print(f"{freq:5}Hz")
             Speaker.tone(freq, 15)
@@ -277,8 +277,8 @@ class SoundDemo:
 
         for freq in range(8000, 100, -100):
             bar_x = int((freq - 100) / 7900 * 200)
-            Lcd.fillRect(20, 100, bar_x, 10, 0xF800)
-            Lcd.fillRect(20 + bar_x, 100, 200 - bar_x, 10, 0x0000)
+            Lcd.fillRect(20, 100, bar_x, 10, Lcd.COLOR.RED)
+            Lcd.fillRect(20 + bar_x, 100, 200 - bar_x, 10, Lcd.COLOR.BLACK)
             Lcd.setCursor(20, 115)
             Lcd.print(f"{freq:5}Hz")
             Speaker.tone(freq, 15)
@@ -291,14 +291,14 @@ class SoundDemo:
         # =====================================================================
         # DEMO 6: API Reference
         # =====================================================================
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("5. API Reference")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         y = 28
         apis = [
             "tone(freq, ms)",
@@ -320,9 +320,9 @@ class SoundDemo:
         # =====================================================================
         # DONE
         # =====================================================================
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("Demo Complete!", 120, 50)
 
         # Victory jingle

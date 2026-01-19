@@ -90,7 +90,7 @@ class WidgetsDemo:
             next_flag = False
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0x07E0, 0x0000)  # Green
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
             while not next_flag and not exit_flag:
@@ -106,18 +106,18 @@ class WidgetsDemo:
         # widgets.Label wraps Lcd text drawing with automatic clearing/redraw
         # Key benefit: set_text() clears old text before drawing new
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("1. widgets.Label")
 
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07FF, 0x0000)  # Cyan
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)  # Cyan
         Lcd.setCursor(10, 30)
         Lcd.print("import widgets")
 
-        Lcd.setTextColor(0xFFE0, 0x0000)  # Yellow
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)  # Yellow
         Lcd.setCursor(10, 48)
         Lcd.print("lbl = widgets.Label(")
         Lcd.setCursor(20, 63)
@@ -127,7 +127,7 @@ class WidgetsDemo:
         Lcd.setCursor(20, 93)
         Lcd.print("bg_color, font)")
 
-        Lcd.setTextColor(0x07E0, 0x0000)  # Green
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)  # Green
         Lcd.setCursor(10, 111)
         Lcd.print("lbl.set_text('new') # auto clears")
 
@@ -142,16 +142,16 @@ class WidgetsDemo:
         # CENTER_ALIGNED: x is center point of text
         # RIGHT_ALIGNED: x is right edge of text
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("2. Alignments")
 
         # Draw reference lines to show alignment points
-        Lcd.drawLine(10, 28, 10, 115, 0x4208)  # Left marker
-        Lcd.drawLine(120, 28, 120, 115, 0x4208)  # Center marker
-        Lcd.drawLine(230, 28, 230, 115, 0x4208)  # Right marker
+        Lcd.drawLine(10, 28, 10, 115, Lcd.COLOR.DARKGREY)  # Left marker
+        Lcd.drawLine(120, 28, 120, 115, Lcd.COLOR.DARKGREY)  # Center marker
+        Lcd.drawLine(230, 28, 230, 115, Lcd.COLOR.DARKGREY)  # Right marker
 
         # LEFT_ALIGNED - x=10 is the LEFT edge
         left_label = widgets.Label(
@@ -160,8 +160,8 @@ class WidgetsDemo:
             35,  # x is left edge
             w=100,
             font_align=widgets.Label.LEFT_ALIGNED,
-            fg_color=0xF800,  # Red
-            bg_color=0x0000,
+            fg_color=Lcd.COLOR.RED,
+            bg_color=Lcd.COLOR.BLACK,
             font=Widgets.FONTS.DejaVu12,
         )
         left_label.set_text("LEFT x=10")
@@ -173,8 +173,8 @@ class WidgetsDemo:
             60,  # x is center point
             w=150,
             font_align=widgets.Label.CENTER_ALIGNED,
-            fg_color=0x07E0,  # Green
-            bg_color=0x0000,
+            fg_color=Lcd.COLOR.GREEN,
+            bg_color=Lcd.COLOR.BLACK,
             font=Widgets.FONTS.DejaVu12,
         )
         center_label.set_text("CENTER x=120")
@@ -186,8 +186,8 @@ class WidgetsDemo:
             85,  # x is right edge
             w=150,
             font_align=widgets.Label.RIGHT_ALIGNED,
-            fg_color=0xFFE0,  # Yellow (visible)
-            bg_color=0x0000,
+            fg_color=Lcd.COLOR.YELLOW,
+            bg_color=Lcd.COLOR.BLACK,
             font=Widgets.FONTS.DejaVu12,
         )
         right_label.set_text("RIGHT x=230")
@@ -202,15 +202,15 @@ class WidgetsDemo:
         # set_text() automatically clears the old text area
         # No need to manually fillRect before updating!
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("3. Dynamic Update")
 
         # Show explanation
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 30)
         Lcd.print("set_text() auto-clears old text")
 
@@ -221,8 +221,8 @@ class WidgetsDemo:
             60,
             w=150,
             font_align=widgets.Label.CENTER_ALIGNED,
-            fg_color=0xFFE0,  # Yellow
-            bg_color=0x0000,
+            fg_color=Lcd.COLOR.YELLOW,
+            bg_color=Lcd.COLOR.BLACK,
             font=Widgets.FONTS.DejaVu18,
         )
         counter_label.set_text("Count: 0")
@@ -234,8 +234,8 @@ class WidgetsDemo:
             90,
             w=200,
             font_align=widgets.Label.CENTER_ALIGNED,
-            fg_color=0xF81F,  # Magenta
-            bg_color=0x0000,
+            fg_color=Lcd.COLOR.MAGENTA,
+            bg_color=Lcd.COLOR.BLACK,
             font=Widgets.FONTS.DejaVu12,
         )
         width_label.set_text("Short")
@@ -261,9 +261,9 @@ class WidgetsDemo:
         # LONG_DOT: Truncates text with "..." when too wide
         # LONG_WARP: Wraps text to multiple lines
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("4. Long Text")
 
@@ -272,7 +272,7 @@ class WidgetsDemo:
         # LONG_DOT - truncates with ellipsis
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 30)
         Lcd.print("LONG_DOT: truncate with ...")
 
@@ -283,8 +283,8 @@ class WidgetsDemo:
             w=140,
             h=15,
             font_align=widgets.Label.LEFT_ALIGNED,
-            fg_color=0xFFE0,  # Yellow
-            bg_color=0x0000,
+            fg_color=Lcd.COLOR.YELLOW,
+            bg_color=Lcd.COLOR.BLACK,
             font=Widgets.FONTS.DejaVu12,
         )
         dot_label.set_long_mode(widgets.Label.LONG_DOT)
@@ -294,7 +294,7 @@ class WidgetsDemo:
         # Must reset font after widgets.Label changes it
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 62)
         Lcd.print("LONG_WARP: wrap to next line")
 
@@ -305,8 +305,8 @@ class WidgetsDemo:
             w=220,
             h=50,
             font_align=widgets.Label.LEFT_ALIGNED,
-            fg_color=0xFFE0,  # Yellow (same as LONG_DOT)
-            bg_color=0x0000,
+            fg_color=Lcd.COLOR.YELLOW,
+            bg_color=Lcd.COLOR.BLACK,
             font=Widgets.FONTS.DejaVu12,
         )
         wrap_label.set_long_mode(widgets.Label.LONG_WARP)
@@ -322,10 +322,10 @@ class WidgetsDemo:
         # Common UI pattern: colored bar at top with centered title
         # Note: bg_color must match the bar color exactly
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
 
         # Draw title bar (18px high)
-        TITLE_BAR_COLOR = 0x001F  # Blue
+        TITLE_BAR_COLOR = Lcd.COLOR.BLUE
         Lcd.fillRect(0, 0, SCREEN_W, 20, TITLE_BAR_COLOR)
 
         # Title label - bg_color MUST match bar
@@ -335,7 +335,7 @@ class WidgetsDemo:
             3,
             w=200,
             font_align=widgets.Label.CENTER_ALIGNED,
-            fg_color=0xFFFF,  # White text
+            fg_color=Lcd.COLOR.WHITE,
             bg_color=TITLE_BAR_COLOR,  # Match bar!
             font=Widgets.FONTS.DejaVu18,
         )
@@ -343,15 +343,15 @@ class WidgetsDemo:
 
         # Explanation
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 30)
         Lcd.print("Pattern:")
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         y = 48
         code = [
-            "BAR_COLOR = 0x001F",
+            "BAR_COLOR = Lcd.COLOR.BLUE",
             "Lcd.fillRect(0,0,240,20,BAR_COLOR)",
             "",
             "title = widgets.Label(",
@@ -374,18 +374,18 @@ class WidgetsDemo:
         # Combining Lcd shapes + widgets.Label for card-style UI
         # Good for dashboards, status displays, settings
 
-        Lcd.fillScreen(0x1082)  # Dark blue background
+        Lcd.fillScreen(Lcd.COLOR.NAVY)  # Dark blue background
 
         # Title bar
-        Lcd.fillRect(0, 0, SCREEN_W, 18, 0x4A69)
+        Lcd.fillRect(0, 0, SCREEN_W, 18, Lcd.COLOR.NAVY)
         title = widgets.Label(
             "Card UI Pattern",
             SCREEN_W // 2,
             2,
             w=200,
             font_align=widgets.Label.CENTER_ALIGNED,
-            fg_color=0xFFFF,
-            bg_color=0x4A69,
+            fg_color=Lcd.COLOR.WHITE,
+            bg_color=Lcd.COLOR.NAVY,
             font=Widgets.FONTS.DejaVu12,
         )
         title.set_text("Card UI Pattern")
@@ -393,12 +393,12 @@ class WidgetsDemo:
         # Helper to draw a card
         def draw_card(x, y, w, h, label_text, value_text, value_color):
             # Card background with border
-            Lcd.fillRoundRect(x, y, w, h, 4, 0x2104)
-            Lcd.drawRoundRect(x, y, w, h, 4, 0x4208)
+            Lcd.fillRoundRect(x, y, w, h, 4, Lcd.COLOR.BLACK)
+            Lcd.drawRoundRect(x, y, w, h, 4, Lcd.COLOR.LIGHTGREY)
 
             # Label (small, gray)
             Lcd.setFont(Widgets.FONTS.ASCII7)
-            Lcd.setTextColor(0x7BEF, 0x2104)
+            Lcd.setTextColor(Lcd.COLOR.LIGHTGREY, Lcd.COLOR.BLACK)
             Lcd.setCursor(x + 5, y + 5)
             Lcd.print(label_text)
 
@@ -410,20 +410,20 @@ class WidgetsDemo:
                 w=w - 10,
                 font_align=widgets.Label.CENTER_ALIGNED,
                 fg_color=value_color,
-                bg_color=0x2104,
+                bg_color=Lcd.COLOR.BLACK,
                 font=Widgets.FONTS.DejaVu18,
             )
             val.set_text(value_text)
             return val
 
         # Draw cards
-        card1 = draw_card(5, 24, 72, 45, "Battery", "85%", 0x07E0)
-        card2 = draw_card(84, 24, 72, 45, "Signal", "4/5", 0xFFE0)
-        card3 = draw_card(163, 24, 72, 45, "Temp", "32C", 0x07FF)
+        card1 = draw_card(5, 24, 72, 45, "Battery", "85%", Lcd.COLOR.GREEN)
+        card2 = draw_card(84, 24, 72, 45, "Signal", "4/5", Lcd.COLOR.YELLOW)
+        card3 = draw_card(163, 24, 72, 45, "Temp", "32C", Lcd.COLOR.CYAN)
 
         # Code explanation
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0x7BEF, 0x1082)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.NAVY)
         Lcd.setCursor(10, 78)
         Lcd.print("Pattern: fillRoundRect + drawRoundRect")
         Lcd.setCursor(10, 90)
@@ -439,15 +439,15 @@ class WidgetsDemo:
         # DEMO 7: API Reference
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("7. API Reference")
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         y = 28
         apis = [
             "widgets.Label(text,x,y,w,h,font_align,",
@@ -472,13 +472,13 @@ class WidgetsDemo:
         # DONE
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("Demo Complete!", 120, 50)
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(15, 80)
         Lcd.print("See demo_widgets.py for code")
 

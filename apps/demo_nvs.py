@@ -92,7 +92,7 @@ class NvsDemo:
             next_flag = False
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0x07E0, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
             while not next_flag and not exit_flag:
@@ -106,19 +106,19 @@ class NvsDemo:
         # DEMO 1: What is NVS?
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("1. What is NVS?")
 
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 30)
         Lcd.print("Non-Volatile Storage")
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         y = 50
         info = [
             "- Key-value store in flash",
@@ -140,14 +140,14 @@ class NvsDemo:
         # DEMO 2: Basic API
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("2. NVS API")
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         y = 28
         code = [
             "import esp32",
@@ -176,9 +176,9 @@ class NvsDemo:
         # =====================================================================
         # Read known UIFlow keys from NVS
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("3. UIFlow NVS")
 
@@ -192,7 +192,7 @@ class NvsDemo:
         keys_u8 = ["boot_option", "brightness", "boot_screen", "comlink"]
         keys_str = ["ssid0", "server", "tz"]
 
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, y)
         Lcd.print("Namespace: 'uiflow'")
         y += 14
@@ -200,11 +200,11 @@ class NvsDemo:
         for key in keys_u8:
             try:
                 val = nvs.get_u8(key)
-                Lcd.setTextColor(0x07E0, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
                 Lcd.setCursor(10, y)
                 Lcd.print(f"{key}: {val}")
             except OSError:
-                Lcd.setTextColor(0x7BEF, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.LIGHTGREY, Lcd.COLOR.BLACK)
                 Lcd.setCursor(10, y)
                 Lcd.print(f"{key}: (not set)")
             y += 11
@@ -215,11 +215,11 @@ class NvsDemo:
                 # Truncate long values
                 if len(val) > 15:
                     val = val[:12] + "..."
-                Lcd.setTextColor(0xFFE0, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
                 Lcd.setCursor(10, y)
                 Lcd.print(f"{key}: '{val}'")
             except OSError:
-                Lcd.setTextColor(0x7BEF, 0x0000)
+                Lcd.setTextColor(Lcd.COLOR.LIGHTGREY, Lcd.COLOR.BLACK)
                 Lcd.setCursor(10, y)
                 Lcd.print(f"{key}: (not set)")
             y += 11
@@ -232,9 +232,9 @@ class NvsDemo:
         # DEMO 4: Boot Option Explained
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("4. boot_option")
 
@@ -245,14 +245,14 @@ class NvsDemo:
             boot_opt = None
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         if boot_opt is not None:
             Lcd.print(f"Current value: {boot_opt}")
         else:
             Lcd.print("Current value: (not set)")
 
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         y = 45
         opts = [
             "0 = Run /flash/main.py directly",
@@ -276,14 +276,14 @@ class NvsDemo:
         # DEMO 5: Other Namespaces
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("5. Namespaces")
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         y = 28
         info = [
             "NVS uses namespaces to organize",
@@ -298,7 +298,7 @@ class NvsDemo:
             "nvs.commit()",
         ]
         for line in info:
-            Lcd.setTextColor(0xFFE0 if line.startswith("'") else 0x07FF, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.YELLOW if line.startswith("'") else Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
             Lcd.setCursor(10, y)
             Lcd.print(line)
             y += 11
@@ -311,14 +311,14 @@ class NvsDemo:
         # DEMO 6: Try It - Write & Read
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("6. Try It!")
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("Writing to 'demo' namespace...")
 
@@ -331,14 +331,14 @@ class NvsDemo:
         demo_nvs.set_str("test_str", "Hello NVS!")
         demo_nvs.commit()
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 45)
         Lcd.print(f"Wrote test_num: {test_val}")
         Lcd.setCursor(10, 57)
         Lcd.print("Wrote test_str: 'Hello NVS!'")
 
         # Read it back
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 75)
         Lcd.print("Reading back...")
 
@@ -350,7 +350,7 @@ class NvsDemo:
         Lcd.setCursor(10, 99)
         Lcd.print(f"Read test_str: '{read_str}'")
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 115)
         Lcd.print("Persists after reboot!")
 
@@ -362,13 +362,13 @@ class NvsDemo:
         # DONE
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("Demo Complete!", 120, 50)
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(20, 80)
         Lcd.print("See demo_nvs.py for code")
 

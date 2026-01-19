@@ -182,27 +182,27 @@ class HelloWorld:
         # if you need dynamic content.
 
         # Clear screen to black
-        # Colors are in RGB565 format (16-bit: 5 red, 6 green, 5 bits blue)
-        Lcd.fillScreen(0x0000)  # 0x0000 = black
+        # Use Lcd.COLOR.* constants for colors (e.g., Lcd.COLOR.BLACK, Lcd.COLOR.GREEN)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
 
         # Draw title using a nice font
         # Available fonts in Widgets.FONTS:
         #   ASCII7 - Monospace, 6x9 base (good for text editors)
         #   DejaVu9/12/18/24/40/56/72 - Proportional, various sizes
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)  # Green (0x07E0) on black
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         # drawCenterString centers text at the given X coordinate
         Lcd.drawCenterString("Hello World!", SCREEN_W // 2, 40)
 
         # Draw subtitle
         Lcd.setFont(Widgets.FONTS.DejaVu12)
-        Lcd.setTextColor(0xFFFF, 0x0000)  # White on black
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("This is an app template", SCREEN_W // 2, 70)
 
         # Draw footer with controls
         # ASCII7 at size 1 is tiny but readable for hints
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0x07E0, 0x0000)  # Green
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 10)  # Bottom of screen
         Lcd.print("ESC=Exit")
 

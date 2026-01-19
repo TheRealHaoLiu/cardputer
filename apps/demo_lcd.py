@@ -97,7 +97,7 @@ class LcdDemo:
             next_flag = False
             Lcd.setFont(Widgets.FONTS.ASCII7)
             Lcd.setTextSize(1)
-            Lcd.setTextColor(0x07E0, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
             Lcd.setCursor(0, SCREEN_H - 10)
             Lcd.print("Enter=Next  ESC=Exit")
             while not next_flag and not exit_flag:
@@ -113,25 +113,25 @@ class LcdDemo:
         # Lcd.setBrightness(0-255) - set screen brightness
         # Lcd.getBrightness() - get current brightness
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("1. Brightness")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("Lcd.setBrightness(0-255)")
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 43)
         Lcd.print("Use , and . to adjust")
 
         # Draw brightness bar background
         bar_x, bar_y, bar_w, bar_h = 20, 65, 200, 20
-        Lcd.drawRect(bar_x - 1, bar_y - 1, bar_w + 2, bar_h + 2, 0xFFFF)
+        Lcd.drawRect(bar_x - 1, bar_y - 1, bar_w + 2, bar_h + 2, Lcd.COLOR.WHITE)
 
         original_brightness = Lcd.getBrightness()
         current_brightness = original_brightness
@@ -139,16 +139,16 @@ class LcdDemo:
         def draw_brightness():
             # Draw filled portion
             fill_w = int(current_brightness / 255 * bar_w)
-            Lcd.fillRect(bar_x, bar_y, fill_w, bar_h, 0xFFE0)
-            Lcd.fillRect(bar_x + fill_w, bar_y, bar_w - fill_w, bar_h, 0x0000)
+            Lcd.fillRect(bar_x, bar_y, fill_w, bar_h, Lcd.COLOR.YELLOW)
+            Lcd.fillRect(bar_x + fill_w, bar_y, bar_w - fill_w, bar_h, Lcd.COLOR.BLACK)
             # Show value
-            Lcd.setTextColor(0xFFFF, 0x0000)
+            Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
             Lcd.setCursor(10, 95)
             Lcd.print(f"Brightness: {current_brightness:3}  ")
 
         draw_brightness()
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 10)
         Lcd.print(",=Down .=Up Enter=Next")
 
@@ -182,9 +182,9 @@ class LcdDemo:
         # =====================================================================
         # Lines, rectangles, circles
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("2. Basic Shapes")
 
@@ -192,37 +192,37 @@ class LcdDemo:
 
         # Draw various shapes
         # Lines
-        Lcd.drawLine(10, 30, 50, 70, 0xF800)  # Red diagonal
-        Lcd.setTextColor(0xF800, 0x0000)
+        Lcd.drawLine(10, 30, 50, 70, Lcd.COLOR.RED)  # Red diagonal
+        Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 75)
         Lcd.print("Line")
 
         # Rectangle outline
-        Lcd.drawRect(60, 30, 40, 40, 0x07E0)  # Green
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.drawRect(60, 30, 40, 40, Lcd.COLOR.GREEN)  # Green
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(60, 75)
         Lcd.print("Rect")
 
         # Filled rectangle
-        Lcd.fillRect(110, 30, 40, 40, 0x001F)  # Blue
-        Lcd.setTextColor(0x001F, 0x0000)
+        Lcd.fillRect(110, 30, 40, 40, Lcd.COLOR.BLUE)  # Blue
+        Lcd.setTextColor(Lcd.COLOR.BLUE, Lcd.COLOR.BLACK)
         Lcd.setCursor(110, 75)
         Lcd.print("Fill")
 
         # Circle outline
-        Lcd.drawCircle(180, 50, 20, 0xFFE0)  # Yellow
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.drawCircle(180, 50, 20, Lcd.COLOR.YELLOW)  # Yellow
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.setCursor(160, 75)
         Lcd.print("Circle")
 
         # Filled circle
-        Lcd.fillCircle(220, 50, 15, 0xF81F)  # Magenta
-        Lcd.setTextColor(0xF81F, 0x0000)
+        Lcd.fillCircle(220, 50, 15, Lcd.COLOR.MAGENTA)  # Magenta
+        Lcd.setTextColor(Lcd.COLOR.MAGENTA, Lcd.COLOR.BLACK)
         Lcd.setCursor(205, 75)
         Lcd.print("Fill")
 
         # API reference
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 90)
         Lcd.print("drawLine/Rect/Circle()")
         Lcd.setCursor(10, 102)
@@ -237,39 +237,39 @@ class LcdDemo:
         # =====================================================================
         # Triangles, rounded rects, ellipses
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("3. More Shapes")
 
         Lcd.setTextSize(1)
 
         # Triangle
-        Lcd.fillTriangle(30, 70, 10, 30, 50, 30, 0xF800)
-        Lcd.setTextColor(0xF800, 0x0000)
+        Lcd.fillTriangle(30, 70, 10, 30, 50, 30, Lcd.COLOR.RED)
+        Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 75)
         Lcd.print("Tri")
 
         # Rounded rectangle
-        Lcd.fillRoundRect(60, 30, 50, 40, 8, 0x07E0)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.fillRoundRect(60, 30, 50, 40, 8, Lcd.COLOR.GREEN)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(60, 75)
         Lcd.print("Round")
 
         # Ellipse
-        Lcd.fillEllipse(150, 50, 30, 20, 0x001F)
-        Lcd.setTextColor(0x001F, 0x0000)
+        Lcd.fillEllipse(150, 50, 30, 20, Lcd.COLOR.BLUE)
+        Lcd.setTextColor(Lcd.COLOR.BLUE, Lcd.COLOR.BLACK)
         Lcd.setCursor(130, 75)
         Lcd.print("Ellipse")
 
         # Arc
-        Lcd.fillArc(210, 50, 10, 25, 0, 270, 0xFFE0)
-        Lcd.setTextColor(0xFFE0, 0x0000)
+        Lcd.fillArc(210, 50, 10, 25, 0, 270, Lcd.COLOR.YELLOW)
+        Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
         Lcd.setCursor(195, 75)
         Lcd.print("Arc")
 
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 90)
         Lcd.print("Triangle/RoundRect/Ellipse/Arc")
 
@@ -282,14 +282,14 @@ class LcdDemo:
         # =====================================================================
         # Individual pixels and simple animation
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("4. Pixels")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("Lcd.drawPixel(x, y, color)")
 
@@ -299,10 +299,10 @@ class LcdDemo:
         for _ in range(200):
             x = random.randint(10, 230)
             y = random.randint(45, 100)
-            color = random.choice([0xF800, 0x07E0, 0x001F, 0xFFE0, 0xF81F, 0x07FF])
+            color = random.choice([Lcd.COLOR.RED, Lcd.COLOR.GREEN, Lcd.COLOR.BLUE, Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA, Lcd.COLOR.CYAN])
             Lcd.drawPixel(x, y, color)
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 105)
         Lcd.print("200 random pixels drawn")
 
@@ -315,14 +315,14 @@ class LcdDemo:
         # =====================================================================
         # Generate QR codes on screen
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("5. QR Code")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 28)
         Lcd.print("Lcd.drawQR(text,x,y,w,ver)")
 
@@ -330,7 +330,7 @@ class LcdDemo:
         qr_text = "Hello Cardputer!"
         Lcd.drawQR(qr_text, 150, 35, 90, 3)
 
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 50)
         Lcd.print("Text:")
         Lcd.setCursor(10, 62)
@@ -350,14 +350,14 @@ class LcdDemo:
         # =====================================================================
         # Screen dimensions and other info
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("6. Display Info")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
 
         y = 30
         infos = [
@@ -381,14 +381,14 @@ class LcdDemo:
         # DEMO 7: API Reference
         # =====================================================================
 
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setTextSize(2)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
         Lcd.print("7. API Reference")
 
         Lcd.setTextSize(1)
-        Lcd.setTextColor(0x07FF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         y = 28
         apis = [
             "setBrightness(0-255)",
@@ -411,13 +411,13 @@ class LcdDemo:
         # =====================================================================
         # DONE
         # =====================================================================
-        Lcd.fillScreen(0x0000)
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.DejaVu18)
-        Lcd.setTextColor(0x07E0, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
         Lcd.drawCenterString("Demo Complete!", 120, 50)
 
         Lcd.setFont(Widgets.FONTS.ASCII7)
-        Lcd.setTextColor(0xFFFF, 0x0000)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(25, 80)
         Lcd.print("See demo_lcd.py for code")
 

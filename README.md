@@ -120,7 +120,7 @@ Each demo teaches specific concepts. Run them with `uv run poe run apps/<name>.p
 | `hello_world` | **START HERE** - App structure, keyboard callbacks, main loop pattern |
 | `notepad` | Text editing, cursor management, incremental screen updates |
 | `demo_anim` | **Double buffering** - The key to smooth animation (canvas vs direct draw) |
-| `demo_text` | Fonts, colors (RGB565), text alignment, scrolling marquee |
+| `demo_text` | Fonts, colors (Lcd.COLOR.*), text alignment, scrolling marquee |
 | `demo_lcd` | Shape drawing, brightness control, QR codes, display info |
 | `demo_keyboard` | Key events, modifier detection, FN combinations, matrix layout |
 | `demo_sound` | Tones, musical notes, volume control, sound effects |
@@ -168,17 +168,19 @@ kb.set_keyevent_callback(on_key)
 ### Double Buffering (Smooth Animation)
 ```python
 canvas = Lcd.newCanvas(240, 135)  # Create off-screen buffer
-canvas.fillScreen(0x0000)         # Draw to canvas (invisible)
+canvas.fillScreen(Lcd.COLOR.BLACK)  # Draw to canvas (invisible)
 canvas.fillRect(x, y, w, h, color)
-canvas.push(0, 0)                 # Copy to screen (atomic, no flicker!)
-canvas.delete()                   # Free memory when done
+canvas.push(0, 0)                   # Copy to screen (atomic, no flicker!)
+canvas.delete()                     # Free memory when done
 ```
 
-### RGB565 Colors
-```
-0x0000 = Black      0xFFFF = White
-0xF800 = Red        0x07E0 = Green      0x001F = Blue
-0xFFE0 = Yellow     0xF81F = Magenta    0x07FF = Cyan
+### Color Constants (Lcd.COLOR.*)
+Use built-in color constants for cleaner code:
+```python
+Lcd.COLOR.BLACK, Lcd.COLOR.WHITE
+Lcd.COLOR.RED, Lcd.COLOR.GREEN, Lcd.COLOR.BLUE
+Lcd.COLOR.YELLOW, Lcd.COLOR.MAGENTA, Lcd.COLOR.CYAN
+Lcd.COLOR.ORANGE, Lcd.COLOR.PINK, Lcd.COLOR.PURPLE
 ```
 
 ## Troubleshooting
