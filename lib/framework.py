@@ -56,22 +56,8 @@ from hardware import MatrixKeyboard
 
 from lib import app_base
 
-# Try to import KeyCode constants from firmware
-# Fall back to our own definitions if not available
-try:
-    from unit import KeyCode
-except ImportError:
-
-    class KeyCode:
-        """Key code constants for special keys."""
-
-        KEYCODE_ESC = 0x1B  # Escape key
-        KEYCODE_ENTER = 0x0D  # Enter/Return key
-        KEYCODE_LEFT = 0x25  # Left arrow (if available)
-        KEYCODE_UP = 0x26  # Up arrow
-        KEYCODE_RIGHT = 0x27  # Right arrow (if available)
-        KEYCODE_DOWN = 0x28  # Down arrow
-
+# Key code constants
+from lib.keycode import KeyCode
 
 # =============================================================================
 # KEY EVENT CLASS
@@ -130,6 +116,7 @@ class Framework:
         self._app_selector = app_base.AppSelector(self._apps)
         self._launcher = None  # Special app that ESC returns to
         self._running = False  # Controls main event loop
+        self._kb = None  # Keyboard instance (created in run())
         self._discovered_modules = set()  # Track loaded modules
 
         # Detect run mode once at init (doesn't change without reset)
@@ -355,7 +342,8 @@ class Framework:
         """
         # Initialize keyboard
         # MatrixKeyboard auto-detects hardware (Cardputer vs ADV)
-        kb = MatrixKeyboard()
+        self._kb = MatrixKeyboard()
+        kb = self._kb  # Local alias for convenience
         event = KeyEvent()
 
         # Start the launcher (or first app in standalone mode)
