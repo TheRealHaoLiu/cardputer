@@ -1,0 +1,93 @@
+[project]
+name = "cardputer"
+version = "0.1.0"
+description = "M5Stack Cardputer ADV MicroPython demos"
+requires-python = ">=3.11"
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.8.0",
+    "poethepoet>=0.25.0",
+    "mpremote>=1.24.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "F401",   # unused import (MicroPython modules may look unused)
+    "F821",   # undefined name (MicroPython builtins not known to ruff)
+    "B905",   # zip() without strict= (MicroPython doesn't support it)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore import errors for MicroPython-specific modules
+"*.py" = ["E402"]  # module level import not at top of file
+# Widgets are created for display, not always referenced
+"apps/demo_widgets.py" = ["F841"]
+# main.py uses dynamic imports
+"main.py" = ["SIM115"]
+
+[tool.poe.tasks]
+lint = { cmd = "ruff check .", help = "Check code for lint errors" }
+fix = { cmd = "ruff check --fix .", help = "Auto-fix lint errors" }
+format = { cmd = "ruff format .", help = "Format code with ruff" }
+check = { sequence = ["lint", "format --check"], help = "Run all checks (lint + format)" }
+
+# Device connection tasks
+# NOTE: Interactive REPL commands don't work through poe (tty issues).
+# For REPL access, run directly:
+#   uv run mpremote connect /dev/tty.usbmodem* mount . repl
+#   uv run mpremote connect /dev/tty.usbmodem* repl
+
+[tool.poe.tasks.run]
+help = "Mount and run a file (default: main.py)"
+shell = "mpremote connect /dev/tty.usbmodem* mount . + exec \"exec(open('/remote/${file}').read())\""
+
+[tool.poe.tasks.run.args.file]
+default = "main.py"
+positional = true
+
+[tool.poe.tasks.deploy]
+help = "Deploy all demos to device flash"
+shell = "./deploy.sh"
+
+[tool.poe.tasks.ls]
+help = "List files on device"
+shell = "mpremote connect /dev/tty.usbmodem* fs ls ${path}"
+
+[tool.poe.tasks.ls.args.path]
+default = "/"
+positional = true
+
+[tool.poe.tasks.reset]
+help = "Reset the device"
+shell = "mpremote connect /dev/tty.usbmodem* reset"
+
+[tool.poe.tasks.cat]
+help = "Show file contents from device"
+shell = "mpremote connect /dev/tty.usbmodem* fs cat ${path}"
+
+[tool.poe.tasks.cat.args.path]
+positional = true
+required = true
+
+[tool.poe.tasks.set-boot-mode]
+help = "Set boot mode: 0=main.py, 1=launcher, 2=network"
+shell = """mpremote connect /dev/tty.usbmodem* exec "import esp32; nvs=esp32.NVS('uiflow'); nvs.set_u8('boot_option',${mode}); nvs.commit(); print('Boot mode set to ${mode}')" """
+
+[tool.poe.tasks.set-boot-mode.args.mode]
+default = "0"
+positional = true
