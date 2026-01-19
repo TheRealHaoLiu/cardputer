@@ -18,26 +18,37 @@ The Cardputer project aims to teach MicroPython and embedded development through
 
 ## Roadmap Overview
 
-### Phase 1: Core Hardware Features
+### Phase 1: Core Hardware Features ✅ COMPLETE
 Foundation demos that showcase built-in Cardputer hardware.
 
-| Demo | Description | Hardware | Priority |
-|------|-------------|----------|----------|
-| `sound_demo.py` | Tone generator, WAV playback, volume control | Speaker | High |
-| `shapes_demo.py` | Draw lines, circles, triangles, arcs, filled shapes | LCD | High |
-| `qrcode_demo.py` | Generate and display QR codes | LCD | Medium |
-| `storage_demo.py` | NVS key-value persistence, save/load settings | Flash NVS | Medium |
-| `brightness_demo.py` | Adjust display brightness with keyboard | LCD | Low |
+| Demo | Description | Hardware | Status |
+|------|-------------|----------|--------|
+| `sound_demo.py` | Tone generator, WAV playback, volume control | Speaker | ✅ Done |
+| `shapes_demo.py` | Draw lines, circles, triangles, arcs, filled shapes | LCD | ✅ Done |
+| `qrcode_demo.py` | Generate and display QR codes | LCD | ✅ Done |
+| `storage_demo.py` | NVS key-value persistence, save/load settings | Flash NVS | ✅ Done |
+| `brightness_demo.py` | Adjust display brightness with keyboard | LCD | ⚠️ **SUPERSEDED** |
 
-### Phase 2: System & Network
-Demos that show system capabilities and connectivity.
+> **Note:** `brightness_demo.py` will be removed by `add-settings-app` proposal.
+> Brightness control is moving to the Settings App > Display tab.
 
-| Demo | Description | Hardware | Priority |
-|------|-------------|----------|----------|
-| `sysinfo_demo.py` | Memory usage, chip info, flash stats | ESP32-S3 | High |
-| `wifi_scanner.py` | Scan and display nearby WiFi networks | WiFi | High |
-| `file_browser.py` | Navigate flash filesystem, view files | Flash FS | Medium |
-| `http_demo.py` | Simple HTTP GET request demo | WiFi | Medium |
+### Phase 2: System & Network ⚠️ REDESIGNED
+> **Note:** This phase has been redesigned. See `add-settings-app` proposal for the new plan.
+>
+> WiFi configuration, system info, and brightness control are now part of a comprehensive
+> **Settings App** with a tabbed interface. The file browser and HTTP demo remain as
+> standalone demos.
+
+**Original plan (deprecated):**
+
+| Demo | Description | Status |
+|------|-------------|--------|
+| `sysinfo_demo.py` | Memory usage, chip info, flash stats | → Moved to Settings > System/About |
+| `wifi_scanner.py` | Scan and display nearby WiFi networks | → Moved to Settings > WiFi |
+| `file_browser.py` | Navigate flash filesystem, view files | 📋 Still planned |
+| `http_demo.py` | Simple HTTP GET request demo | 📋 Still planned |
+
+**New plan:** See `openspec/changes/add-settings-app/proposal.md`
 
 ### Phase 3: Interactive Applications
 Engaging demos that combine multiple features.
@@ -56,7 +67,6 @@ Demos for advanced capabilities (may require additional hardware).
 |------|-------------|----------|----------|
 | `mic_demo.py` | Audio recording and playback | Microphone | Medium |
 | `chart_demo.py` | Real-time data visualization (graphs) | LCD | Medium |
-| `settings_app.py` | Persistent settings manager (brightness, volume) | NVS + LCD | Low |
 
 ## Implementation Guidelines
 
