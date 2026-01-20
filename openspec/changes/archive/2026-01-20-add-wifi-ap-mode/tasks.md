@@ -52,14 +52,14 @@
 
 ## 6. Testing
 
-- [ ] 6.1 Test STA enable/disable and persistence across reboots
-- [ ] 6.2 Test AP enable/disable and persistence across reboots
-- [ ] 6.3 Test both STA and AP enabled simultaneously
-- [ ] 6.4 Test boot.py restores correct STA/AP states
-- [ ] 6.5 Test ESC returns to correct view (not exit tab)
-- [ ] 6.6 Test AP creation and client connections
+- [x] 6.1 Test STA enable/disable and persistence across reboots
+- [x] 6.2 Test AP enable/disable and persistence across reboots
+- [x] 6.3 Test both STA and AP enabled simultaneously
+- [x] 6.4 Test boot.py restores correct STA/AP states
+- [x] 6.5 Test ESC returns to correct view (not exit tab)
+- [x] 6.6 Test AP creation and client connections
 
 ## 7. Optional Enhancements
 
-- [ ] 7.1 Auto-generate default AP SSID from device ID (e.g., "Cardputer-XXXX")
+- [-] 7.1 Auto-generate default AP SSID from device ID (e.g., "Cardputer-XXXX")
 - [x] 7.2 Show list of connected clients with MAC when AP is active
