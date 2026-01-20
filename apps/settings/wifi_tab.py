@@ -193,12 +193,24 @@ class WiFiTab(TabBase):
         Lcd.fillRect(0, CONTENT_Y, SCREEN_W, CONTENT_H, BLACK)
         self.draw(app)
 
+    def _save_wifi_state(self, enabled):
+        """Save WiFi enabled state to NVS."""
+        try:
+            import esp32
+            nvs = esp32.NVS("settings")
+            nvs.set_i32("wifi_on", 1 if enabled else 0)
+            nvs.commit()
+            print(f"[wifi] State saved: {'on' if enabled else 'off'}")
+        except Exception as e:
+            print(f"[wifi] Failed to save state: {e}")
+
     def toggle(self, app):
         """Toggle WiFi on/off."""
         wlan = self._get_wlan()
         if wlan:
             self.enabled = not self.enabled
             wlan.active(self.enabled)
+            self._save_wifi_state(self.enabled)
             if not self.enabled:
                 self.networks = []
                 self.connected_ssid = None
