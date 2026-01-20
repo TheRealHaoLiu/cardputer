@@ -76,8 +76,6 @@ The file browser SHALL display storage capacity information for each browsable l
 - **THEN** the browser SHALL display system storage statistics if available
 - **OR** display "Info not available" if statvfs fails on this mount
 
-## MODIFIED Requirements
-
 ### Requirement: Directory Browsing
 
 The file browser SHALL provide directory navigation for any storage location.
@@ -111,6 +109,7 @@ The file browser SHALL display text file contents in a scrollable viewer.
 - **WHEN** user selects a file and presses Enter
 - **THEN** the browser SHALL attempt to read and display the file contents
 - **AND** support scrolling with Up/Down keys
+- **AND** support horizontal scrolling with Left/Right keys for long lines
 
 #### Scenario: Binary file handling
 
@@ -121,26 +120,13 @@ The file browser SHALL display text file contents in a scrollable viewer.
 
 - **WHEN** user opens a file with more than 100 lines
 - **THEN** the browser SHALL read only the first 100 lines
-- **AND** indicate the file was truncated
 
-## REMOVED Requirements
+### Requirement: Read-Only Operation
 
-### Requirement: File Write Operations
+The file browser SHALL be read-only with no file modification capabilities.
 
-The file browser removes write capabilities from the SD card demo.
-
-#### Scenario: No write key
+#### Scenario: No write operations
 
 - **WHEN** user is browsing any storage location
-- **THEN** the W key SHALL NOT create test files
-- **AND** the help text SHALL NOT mention write operations
-
-### Requirement: SD Card Remount
-
-The R key remount functionality is replaced by the root selector.
-
-#### Scenario: Refresh replaces remount
-
-- **WHEN** user presses R
-- **THEN** the browser SHALL refresh the current directory listing
-- **AND** NOT attempt to remount SD card
+- **THEN** no keys SHALL create, modify, or delete files
+- **AND** the R key SHALL only refresh the directory listing

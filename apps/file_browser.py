@@ -1,65 +1,33 @@
 """
-SD Card Demo - MicroSD Storage Explorer
-========================================
+File Browser - Multi-Storage File Explorer
+===========================================
 
-Demonstrates the Cardputer ADV's SD card slot using MicroPython's
-machine.SDCard and standard file I/O. SD card storage enables:
-- Storing larger files that don't fit in flash (8MB limit)
-- Transferring data between devices via removable media
-- Logging sensor data over time
-- Loading assets (images, configs, sounds) without reflashing
+A read-only file browser for exploring device storage locations:
+- /flash  - Internal flash storage (apps, configs, user files)
+- /sd     - MicroSD card (optional, requires card inserted)
+- /system - System/firmware files
 
-SD CARD API SUMMARY:
---------------------
-    import machine
-    import os
+This utility app allows you to navigate directories, view text files,
+and check storage capacity across all available storage locations.
 
-    # Initialize SDCard with Cardputer pins (slot=3 for SPI mode)
-    # slot=2 is used by the display, so we use slot=3
-    sd = machine.SDCard(slot=3, sck=machine.Pin(40), miso=machine.Pin(39),
-                        mosi=machine.Pin(14), cs=machine.Pin(12), freq=1000000)
-
-    # Mount to /sd directory
-    os.mount(sd, '/sd')
-
-    # File operations via os module
-    os.listdir('/sd')           # List directory
-    os.stat('/sd/file.txt')     # Get file info (size, etc.)
-    os.statvfs('/sd')           # Get filesystem stats (total/free space)
-    os.mkdir('/sd/newdir')      # Create directory
-    os.remove('/sd/file.txt')   # Delete file
-    os.chdir('/sd')             # Change directory
-
-    # File I/O via open()
-    with open('/sd/data.txt', 'w') as f:
-        f.write('Hello SD card!')
-
-    with open('/sd/data.txt', 'r') as f:
-        content = f.read()
-
-    # Unmount before ejecting
-    os.umount('/sd')
-    sd.deinit()
-
-REQUIREMENTS:
--------------
-- FAT32 formatted microSD card
-- Insert with contacts facing away from screen
-- May need lower freq (1MHz) if OSError occurs
+STORAGE LOCATIONS:
+------------------
+    /flash  - Always available, contains your deployed apps and lib/
+    /sd     - Available when FAT32 microSD card is inserted
+    /system - System partition with firmware files
 
 CONTROLS:
 ---------
-    Up/Down = Navigate file list
-    Enter   = Open file/enter directory
-    Backspace = Go up one directory
-    W = Write test file (creates timestamp file)
-    R = Refresh/remount SD card
-    ESC = Exit to launcher
+    Up/Down   = Navigate (;/. keys or Fn+arrows)
+    Right     = Open file/directory (/ key or Enter)
+    Left      = Go up one directory (, key or Backspace)
+    I         = Show storage info
+    R         = Refresh directory listing
+    ESC       = Exit to launcher (or return to selector from list)
 """
 
 import asyncio
 import sys
-import time
 
 for path in ["/flash/lib", "/remote/lib"]:
     if path not in sys.path:
@@ -69,7 +37,7 @@ import os
 
 import machine
 from app_base import AppBase
-from keycode import KeyCode
+from keycode import KEY_NAV_DOWN, KEY_NAV_LEFT, KEY_NAV_RIGHT, KEY_NAV_UP, KeyCode
 from M5 import Lcd, Widgets
 
 # Screen dimensions
@@ -83,45 +51,87 @@ SD_MOSI = 14
 SD_CS = 12
 SD_FREQ = 1000000  # 1 MHz (conservative, increase if stable)
 
-# Mount point
-SD_MOUNT = "/sd"
+# Storage locations: (display_name, path, requires_mount)
+STORAGE_LOCATIONS = [
+    ("Flash", "/flash", False),
+    ("SD Card", "/sd", True),
+    ("System", "/system", False),
+]
 
 # UI constants
 MAX_VISIBLE_ITEMS = 6  # Number of file entries visible at once
 ITEM_HEIGHT = 14  # Height of each file entry row
 
 
-class SDCardDemo(AppBase):
-    """Interactive SD card file browser and demo."""
+class FileBrowser(AppBase):
+    """Multi-storage file browser for exploring device filesystems."""
 
     def __init__(self):
         super().__init__()
-        self.name = "SD Card Demo"
+        self.name = "File Browser"
         self._sd = None  # SDCard object
-        self._mounted = False  # Whether SD is mounted
+        self._sd_mounted = False  # Whether SD is mounted
+        self._sd_available = None  # None = not checked, True/False = checked
         self._error_msg = ""  # Last error message
-        self._current_path = SD_MOUNT  # Current directory path
+        self._current_path = ""  # Current directory path
+        self._current_storage = None  # Index into STORAGE_LOCATIONS
+        self._storage_selected = 0  # Selected item in storage selector
         self._entries = []  # List of (name, is_dir, size) tuples
         self._selected = 0  # Currently selected entry index
         self._scroll_offset = 0  # Scroll offset for long lists
-        self._view_mode = "list"  # "list", "info", or "viewer"
+        self._view_mode = "selector"  # "selector", "list", "info", or "viewer"
         self._file_content = []  # Lines of file being viewed
-        self._content_offset = 0  # Scroll offset for file viewer
+        self._content_offset = 0  # Vertical scroll offset for file viewer
+        self._content_h_offset = 0  # Horizontal scroll offset for long lines
 
     def on_launch(self):
-        """Initialize and mount SD card."""
-        self._mount_sd()
-        if self._mounted:
-            self._load_directory()
+        """Start in storage selector mode."""
+        self._view_mode = "selector"
+        self._storage_selected = 0
+        self._current_storage = None
+        self._sd_available = None  # Will check when selector is drawn
+        self._check_sd_available()
 
-    def _mount_sd(self):
-        """Attempt to mount the SD card."""
-        self._error_msg = ""
-        self._mounted = False
+    def _check_sd_available(self):
+        """Check if SD card is available (try mount/unmount)."""
+        if self._sd_available is not None:
+            return self._sd_available
 
         try:
-            # Initialize SDCard using machine.SDCard
-            # slot=3 for SPI mode (slot=2 is used by display)
+            # Try to initialize and mount SD card
+            sd = machine.SDCard(
+                slot=3,
+                sck=machine.Pin(SD_SCK),
+                miso=machine.Pin(SD_MISO),
+                mosi=machine.Pin(SD_MOSI),
+                cs=machine.Pin(SD_CS),
+                freq=SD_FREQ,
+            )
+            # Try to mount temporarily
+            try:
+                os.mount(sd, "/sd")
+                os.umount("/sd")
+            except OSError:
+                # May already be mounted or other issue
+                try:  # noqa: SIM105 - contextlib not available in MicroPython
+                    os.umount("/sd")
+                except OSError:
+                    pass
+            sd.deinit()
+            self._sd_available = True
+        except OSError:
+            self._sd_available = False
+
+        return self._sd_available
+
+    def _mount_sd(self):
+        """Mount the SD card."""
+        if self._sd_mounted:
+            return True
+
+        self._error_msg = ""
+
+        try:
             self._sd = machine.SDCard(
                 slot=3,
                 sck=machine.Pin(SD_SCK),
@@ -131,23 +141,23 @@ class SDCardDemo(AppBase):
                 freq=SD_FREQ,
             )
 
-            # Try to mount
             try:
-                os.mount(self._sd, SD_MOUNT)
+                os.mount(self._sd, "/sd")
             except OSError:
                 # Already mounted, unmount first
                 try:  # noqa: SIM105 - contextlib not available in MicroPython
-                    os.umount(SD_MOUNT)
+                    os.umount("/sd")
                 except OSError:
                     pass
-                os.mount(self._sd, SD_MOUNT)
+                os.mount(self._sd, "/sd")
 
-            self._mounted = True
-            self._current_path = SD_MOUNT
+            self._sd_mounted = True
+            return True
 
         except OSError as e:
-            self._error_msg = f"No SD card: {e}"
+            self._error_msg = f"Mount failed: {e}"
             self._cleanup_sd()
+            return False
 
     def _cleanup_sd(self):
         """Clean up SD card resources."""
@@ -160,23 +170,44 @@ class SDCardDemo(AppBase):
 
     def _unmount_sd(self):
         """Unmount and deinitialize SD card."""
-        if self._mounted:
+        if self._sd_mounted:
             try:  # noqa: SIM105 - contextlib not available in MicroPython
-                os.umount(SD_MOUNT)
+                os.umount("/sd")
             except OSError:
                 pass
-            self._mounted = False
+            self._sd_mounted = False
 
         self._cleanup_sd()
+
+    def _select_storage(self, index):
+        """Select a storage location and enter it."""
+        name, path, requires_mount = STORAGE_LOCATIONS[index]
+
+        if requires_mount and not self._mount_sd():
+            return False
+
+        self._current_storage = index
+        self._current_path = path
+        self._load_directory()
+        self._view_mode = "list"
+        return True
+
+    def _return_to_selector(self):
+        """Return to storage selector, unmounting SD if needed."""
+        if self._sd_mounted:
+            self._unmount_sd()
+
+        self._current_storage = None
+        self._view_mode = "selector"
+        self._sd_available = None  # Re-check on next draw
+        self._check_sd_available()
 
     def _load_directory(self):
         """Load entries from current directory."""
         self._entries = []
         self._selected = 0
         self._scroll_offset = 0
-
-        if not self._mounted:
-            return
+        self._error_msg = ""
 
         try:
             items = os.listdir(self._current_path)
@@ -194,13 +225,10 @@ class SDCardDemo(AppBase):
         except OSError as e:
             self._error_msg = f"Read error: {e}"
 
-    def _get_sd_info(self):
-        """Get SD card storage info using statvfs."""
-        if not self._mounted:
-            return None
-
+    def _get_storage_info(self, path):
+        """Get storage info for any mount point using statvfs."""
         try:
-            stat = os.statvfs(SD_MOUNT)
+            stat = os.statvfs(path)
             # statvfs returns tuple:
             # (f_bsize, f_frsize, f_blocks, f_bfree, f_bavail, ...)
             block_size = stat[0]
@@ -231,52 +259,108 @@ class SDCardDemo(AppBase):
 
     def on_view(self):
         """Draw the appropriate view."""
-        if self._view_mode == "list":
+        if self._view_mode == "selector":
+            self._draw_selector_view()
+        elif self._view_mode == "list":
             self._draw_list_view()
         elif self._view_mode == "info":
             self._draw_info_view()
         elif self._view_mode == "viewer":
             self._draw_file_viewer()
 
+    def _draw_selector_view(self):
+        """Draw storage location selector."""
+        Lcd.fillScreen(Lcd.COLOR.BLACK)
+        Lcd.setFont(Widgets.FONTS.ASCII7)
+
+        # Title
+        Lcd.setTextSize(2)
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
+        Lcd.setCursor(10, 5)
+        Lcd.print("File Browser")
+
+        Lcd.setTextSize(1)
+        Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
+        Lcd.setCursor(10, 28)
+        Lcd.print("Select storage location:")
+
+        # Storage options
+        y = 45
+        for i, (name, path, requires_mount) in enumerate(STORAGE_LOCATIONS):
+            is_selected = i == self._storage_selected
+
+            # Check availability for SD card
+            available = True
+            status = ""
+            if requires_mount:
+                available = self._sd_available if self._sd_available is not None else True
+                if not available:
+                    status = " (no card)"
+
+            # Background for selected
+            if is_selected:
+                Lcd.fillRect(0, y, SCREEN_W, ITEM_HEIGHT + 4, Lcd.COLOR.DARKGREY)
+
+            bg = Lcd.COLOR.DARKGREY if is_selected else Lcd.COLOR.BLACK
+
+            # Storage name
+            if available:
+                color = Lcd.COLOR.WHITE if is_selected else Lcd.COLOR.LIGHTGREY
+            else:
+                color = Lcd.COLOR.RED
+
+            Lcd.setTextColor(color, bg)
+            Lcd.setCursor(10, y + 2)
+            Lcd.print(f"{name}{status}")
+
+            # Path hint
+            Lcd.setTextColor(Lcd.COLOR.YELLOW if is_selected else Lcd.COLOR.DARKGREY, bg)
+            Lcd.setCursor(120, y + 2)
+            Lcd.print(path)
+
+            y += ITEM_HEIGHT + 6
+
+        # Footer
+        Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
+        Lcd.setCursor(0, SCREEN_H - 12)
+        Lcd.print("Up/Dn=Nav  Rt=Open  ESC=Exit")
+
     def _draw_list_view(self):
         """Draw file browser list view."""
         Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
 
-        # Title bar with path
+        # Title bar with storage name and path
         Lcd.setTextSize(1)
         Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLUE)
         Lcd.fillRect(0, 0, SCREEN_W, 12, Lcd.COLOR.BLUE)
         Lcd.setCursor(2, 2)
 
-        # Truncate path if too long
-        display_path = self._current_path
-        if len(display_path) > 35:
-            display_path = "..." + display_path[-32:]
-        Lcd.print(display_path)
+        # Show storage name and relative path
+        if self._current_storage is not None:
+            storage_name = STORAGE_LOCATIONS[self._current_storage][0]
+            storage_root = STORAGE_LOCATIONS[self._current_storage][1]
+            rel_path = self._current_path[len(storage_root) :] or "/"
+            display = f"{storage_name}:{rel_path}"
+            if len(display) > 38:
+                display = display[:35] + "..."
+            Lcd.print(display)
 
         # Error state
-        if not self._mounted:
-            Lcd.setTextSize(2)
-            Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)
-            Lcd.setCursor(20, 40)
-            Lcd.print("No SD Card")
-
+        if self._error_msg:
             Lcd.setTextSize(1)
-            Lcd.setTextColor(Lcd.COLOR.YELLOW, Lcd.COLOR.BLACK)
-            Lcd.setCursor(10, 70)
-            if self._error_msg:
-                # Wrap long error messages
-                if len(self._error_msg) > 35:
-                    Lcd.print(self._error_msg[:35])
-                    Lcd.setCursor(10, 82)
-                    Lcd.print(self._error_msg[35:70])
-                else:
-                    Lcd.print(self._error_msg)
+            Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)
+            Lcd.setCursor(10, 40)
+            if len(self._error_msg) > 35:
+                Lcd.print(self._error_msg[:35])
+                Lcd.setCursor(10, 52)
+                Lcd.print(self._error_msg[35:70])
+            else:
+                Lcd.print(self._error_msg)
 
             Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
-            Lcd.setCursor(10, 100)
-            Lcd.print("R=Retry  ESC=Exit")
+            Lcd.setCursor(10, 80)
+            Lcd.print("BS=Back  R=Retry  ESC=Exit")
             return
 
         # File list
@@ -337,12 +421,12 @@ class SDCardDemo(AppBase):
         # Footer with controls
         Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 22)
-        Lcd.print("Up/Dn=Nav Enter=Open BS=Up")
+        Lcd.print("Up/Dn=Nav Rt=Open Lt=Back")
         Lcd.setCursor(0, SCREEN_H - 10)
-        Lcd.print("W=Write I=Info R=Refresh ESC=Exit")
+        Lcd.print("I=Info R=Refresh ESC=Exit")
 
     def _draw_info_view(self):
-        """Draw SD card info view."""
+        """Draw storage info view."""
         Lcd.fillScreen(Lcd.COLOR.BLACK)
         Lcd.setFont(Widgets.FONTS.ASCII7)
 
@@ -350,11 +434,19 @@ class SDCardDemo(AppBase):
         Lcd.setTextSize(2)
         Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(10, 5)
-        Lcd.print("SD Card Info")
+
+        if self._current_storage is not None:
+            storage_name = STORAGE_LOCATIONS[self._current_storage][0]
+            Lcd.print(f"{storage_name} Info")
+        else:
+            Lcd.print("Storage Info")
 
         Lcd.setTextSize(1)
 
-        info = self._get_sd_info()
+        # Get storage info for current storage root
+        storage_root = STORAGE_LOCATIONS[self._current_storage][1] if self._current_storage else "/"
+        info = self._get_storage_info(storage_root)
+
         if info:
             # Storage stats
             Lcd.setTextColor(Lcd.COLOR.GREEN, Lcd.COLOR.BLACK)
@@ -394,13 +486,13 @@ class SDCardDemo(AppBase):
             Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
             Lcd.setCursor(10, 98)
             path_display = self._current_path
-            if len(path_display) > 35:
-                path_display = "..." + path_display[-32:]
+            if len(path_display) > 30:
+                path_display = "..." + path_display[-27:]
             Lcd.print(f"Path: {path_display}")
         else:
             Lcd.setTextColor(Lcd.COLOR.RED, Lcd.COLOR.BLACK)
             Lcd.setCursor(10, 50)
-            Lcd.print("Could not read SD card info")
+            Lcd.print("Info not available")
 
         # Footer
         Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
@@ -428,6 +520,7 @@ class SDCardDemo(AppBase):
         # File content
         Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         max_lines = 8
+        max_chars = 38  # Characters that fit on screen
         y = 14
 
         if not self._file_content:
@@ -435,16 +528,17 @@ class SDCardDemo(AppBase):
             Lcd.print("(empty file)")
         else:
             visible_end = min(self._content_offset + max_lines, len(self._file_content))
+            max_line_len = 0  # Track longest line for scroll indicator
             for i in range(self._content_offset, visible_end):
                 line = self._file_content[i]
-                # Truncate long lines
-                if len(line) > 38:
-                    line = line[:35] + "..."
+                max_line_len = max(max_line_len, len(line))
+                # Apply horizontal offset and limit to screen width
+                line = line[self._content_h_offset : self._content_h_offset + max_chars]
                 Lcd.setCursor(2, y)
                 Lcd.print(line)
                 y += 12
 
-            # Scroll indicators
+            # Vertical scroll indicators
             if self._content_offset > 0:
                 Lcd.setTextColor(Lcd.COLOR.MAGENTA, Lcd.COLOR.BLACK)
                 Lcd.setCursor(SCREEN_W - 12, 14)
@@ -454,6 +548,16 @@ class SDCardDemo(AppBase):
                 Lcd.setCursor(SCREEN_W - 12, y - 12)
                 Lcd.print("v")
 
+            # Horizontal scroll indicators
+            if self._content_h_offset > 0:
+                Lcd.setTextColor(Lcd.COLOR.MAGENTA, Lcd.COLOR.BLACK)
+                Lcd.setCursor(0, 60)
+                Lcd.print("<")
+            if self._content_h_offset + max_chars < max_line_len:
+                Lcd.setTextColor(Lcd.COLOR.MAGENTA, Lcd.COLOR.BLACK)
+                Lcd.setCursor(SCREEN_W - 8, 60)
+                Lcd.print(">")
+
         # Line count
         Lcd.setTextColor(Lcd.COLOR.CYAN, Lcd.COLOR.BLACK)
         Lcd.setCursor(SCREEN_W - 60, SCREEN_H - 22)
@@ -462,12 +566,13 @@ class SDCardDemo(AppBase):
         # Footer
         Lcd.setTextColor(Lcd.COLOR.WHITE, Lcd.COLOR.BLACK)
         Lcd.setCursor(0, SCREEN_H - 10)
-        Lcd.print("Up/Dn=Scroll BS/ESC=Back")
+        Lcd.print("Arrows=Scroll  BS/ESC=Back")
 
     def _open_file(self, path):
         """Open and read a text file."""
         self._file_content = []
         self._content_offset = 0
+        self._content_h_offset = 0
 
         try:
             with open(path) as f:
@@ -485,42 +590,25 @@ class SDCardDemo(AppBase):
 
         self._view_mode = "viewer"
 
-    def _write_test_file(self):
-        """Write a test file with timestamp."""
-        if not self._mounted:
+    def _navigate_up(self):
+        """Go up one directory level or return to selector."""
+        if self._current_storage is None:
             return
 
-        try:
-            # Get current time tuple
-            t = time.localtime()
-            timestamp = f"{t[0]}-{t[1]:02d}-{t[2]:02d}_{t[3]:02d}{t[4]:02d}{t[5]:02d}"
-            filename = f"test_{timestamp}.txt"
-            filepath = f"{self._current_path}/{filename}"
+        storage_root = STORAGE_LOCATIONS[self._current_storage][1]
 
-            with open(filepath, "w") as f:
-                f.write("Cardputer SD Card Test\n")
-                f.write(f"Created: {timestamp}\n")
-                f.write(f"Path: {filepath}\n")
-                f.write("\nThis file demonstrates SD card write.\n")
-
-            # Reload directory to show new file
-            self._load_directory()
+        # At storage root? Return to selector
+        if self._current_path == storage_root:
+            self._return_to_selector()
             self.on_view()
-
-        except OSError as e:
-            self._error_msg = f"Write failed: {e}"
-
-    def _navigate_up(self):
-        """Go up one directory level."""
-        if self._current_path == SD_MOUNT:
-            return  # Already at root
+            return
 
         # Remove last path component
         last_slash = self._current_path.rfind("/")
         if last_slash > 0:
             self._current_path = self._current_path[:last_slash]
         else:
-            self._current_path = SD_MOUNT
+            self._current_path = storage_root
 
         self._load_directory()
         self.on_view()
@@ -552,16 +640,65 @@ class SDCardDemo(AppBase):
                 self.on_view()
                 event.status = True
                 return
-            # Let framework handle ESC in list mode
-            return
-
-        # Backspace - go up or exit viewer
-        if key == KeyCode.KEYCODE_BACKSPACE:
-            if self._view_mode == "viewer":
+            if self._view_mode == "info":
                 self._view_mode = "list"
                 self.on_view()
-            elif self._view_mode == "list" and self._mounted:
+                event.status = True
+                return
+            # In list mode, return to selector first
+            if self._view_mode == "list":
+                self._return_to_selector()
+                self.on_view()
+                event.status = True
+                return
+            # In selector mode, let framework handle ESC to exit app
+            return
+
+        # Storage selector controls
+        if self._view_mode == "selector":
+            if key in (KeyCode.KEYCODE_UP, KEY_NAV_UP):
+                if self._storage_selected > 0:
+                    self._storage_selected -= 1
+                    self.on_view()
+                event.status = True
+                return
+
+            if key in (KeyCode.KEYCODE_DOWN, KEY_NAV_DOWN):
+                if self._storage_selected < len(STORAGE_LOCATIONS) - 1:
+                    self._storage_selected += 1
+                    self.on_view()
+                event.status = True
+                return
+
+            if key in (KeyCode.KEYCODE_ENTER, KEY_NAV_RIGHT):
+                # Check if SD card is available
+                name, path, requires_mount = STORAGE_LOCATIONS[self._storage_selected]
+                if requires_mount and not self._sd_available:
+                    # Can't select unavailable storage
+                    event.status = True
+                    return
+
+                if self._select_storage(self._storage_selected):
+                    self.on_view()
+                event.status = True
+                return
+
+            event.status = True
+            return
+
+        # Backspace - go up or exit viewer (comma handled separately for horizontal scroll)
+        if key == KeyCode.KEYCODE_BACKSPACE:
+            if self._view_mode in ("viewer", "info"):
+                self._view_mode = "list"
+                self.on_view()
+            elif self._view_mode == "list":
                 self._navigate_up()
+            event.status = True
+            return
+
+        # Comma (left) in list mode - go up directory
+        if key == KEY_NAV_LEFT and self._view_mode == "list":
+            self._navigate_up()
             event.status = True
             return
 
@@ -574,18 +711,29 @@ class SDCardDemo(AppBase):
 
         # File viewer controls
         if self._view_mode == "viewer":
-            if key == KeyCode.KEYCODE_UP and self._content_offset > 0:
+            if key in (KeyCode.KEYCODE_UP, KEY_NAV_UP) and self._content_offset > 0:
                 self._content_offset -= 1
                 self.on_view()
-            elif key == KeyCode.KEYCODE_DOWN and self._content_offset < len(self._file_content) - 1:
+            elif (
+                key in (KeyCode.KEYCODE_DOWN, KEY_NAV_DOWN)
+                and self._content_offset < len(self._file_content) - 1
+            ):
                 self._content_offset += 1
+                self.on_view()
+            elif key in (KeyCode.KEYCODE_RIGHT, KEY_NAV_RIGHT):
+                # Scroll right (show more of long lines)
+                self._content_h_offset += 10
+                self.on_view()
+            elif key in (KeyCode.KEYCODE_LEFT, KEY_NAV_LEFT) and self._content_h_offset > 0:
+                # Scroll left
+                self._content_h_offset = max(0, self._content_h_offset - 10)
                 self.on_view()
             event.status = True
             return
 
         # List view controls
         if self._view_mode == "list":
-            if key == KeyCode.KEYCODE_UP:
+            if key in (KeyCode.KEYCODE_UP, KEY_NAV_UP):
                 if self._selected > 0:
                     self._selected -= 1
                     # Adjust scroll if needed
@@ -595,7 +743,7 @@ class SDCardDemo(AppBase):
                 event.status = True
                 return
 
-            if key == KeyCode.KEYCODE_DOWN:
+            if key in (KeyCode.KEYCODE_DOWN, KEY_NAV_DOWN):
                 if self._selected < len(self._entries) - 1:
                     self._selected += 1
                     # Adjust scroll if needed
@@ -605,14 +753,8 @@ class SDCardDemo(AppBase):
                 event.status = True
                 return
 
-            if key == KeyCode.KEYCODE_ENTER:
+            if key in (KeyCode.KEYCODE_ENTER, KEY_NAV_RIGHT):
                 self._enter_selected()
-                event.status = True
-                return
-
-            # W = Write test file
-            if key == ord("w") or key == ord("W"):
-                self._write_test_file()
                 event.status = True
                 return
 
@@ -623,12 +765,9 @@ class SDCardDemo(AppBase):
                 event.status = True
                 return
 
-            # R = Refresh/remount
+            # R = Refresh directory
             if key == ord("r") or key == ord("R"):
-                self._unmount_sd()
-                self._mount_sd()
-                if self._mounted:
-                    self._load_directory()
+                self._load_directory()
                 self.on_view()
                 event.status = True
                 return
@@ -641,12 +780,13 @@ class SDCardDemo(AppBase):
             await asyncio.sleep_ms(100)
 
     def on_exit(self):
-        """Clean up SD card resources."""
-        self._unmount_sd()
+        """Clean up resources."""
+        if self._sd_mounted:
+            self._unmount_sd()
 
 
 # Export for framework discovery
-App = SDCardDemo
+App = FileBrowser
 
 if __name__ == "__main__":
     import M5
@@ -658,5 +798,5 @@ if __name__ == "__main__":
     from framework import Framework
 
     fw = Framework()
-    fw.install(SDCardDemo())
+    fw.install(FileBrowser())
     fw.start()
