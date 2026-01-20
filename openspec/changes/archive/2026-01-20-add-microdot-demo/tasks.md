@@ -88,5 +88,5 @@
 ## Additional Work
 
 ### Vendored Dependencies
-- [x] Add `libs/microdot.mpy` (compiled from microdot source)
+- [x] Add `lib/microdot.mpy` (compiled from microdot source)
 - [x] Add ECONNABORTED (113) to muted socket errors
