@@ -1,53 +1,65 @@
 ## 1. Library Infrastructure
 
-- [ ] 1.1 Create `lib/wifi_constants.py` with mode constants and NVS keys
-- [ ] 1.2 Create `lib/wifi_manager.py` with WiFiManager class:
-      - Mode management (set_mode, get_mode)
-      - STA operations (connect, disconnect, scan, is_connected, get_ip)
-      - AP operations (start, stop, get_ip, get_clients)
-      - NVS persistence (save_config, load_config)
-- [ ] 1.3 NVS structure in "cardputer_wifi" namespace:
-      - `mode`: i32 (WIFI_MODE_OFF=0, WIFI_MODE_STA=1, WIFI_MODE_AP=2, WIFI_MODE_STA_AP=3)
-      - `sta_ssid`, `sta_password`: blob (STA credentials)
-      - `ap_ssid`, `ap_password`: blob (AP settings)
-- [ ] 1.4 Update boot.py to use WiFiManager for all four modes
-- [ ] 1.5 Update wifi_tab.py to use WiFiManager (remove duplicated WiFi logic)
+- [x] 1.1 Create `lib/wifi_constants.py` with NVS keys and defaults
+- [x] 1.2 Update `lib/wifi_manager.py` for independent STA/AP control:
+      - Remove mode-based API (set_mode, get_mode, cycle_mode)
+      - Add sta_enable(), sta_disable(), sta_is_enabled()
+      - Add ap_enable(), ap_disable(), ap_is_enabled()
+      - Keep existing: sta_connect, sta_disconnect, sta_scan, sta_is_connected, sta_get_ip
+      - Keep existing: ap_get_ip, ap_get_clients, ap_set_config
+      - Update NVS: save/restore sta_enabled and ap_enabled separately
+- [x] 1.3 Update `lib/wifi_constants.py`:
+      - Remove WIFI_MODE_* constants (no longer needed)
+      - Add NVS_KEY_STA_ENABLED = "sta_on"
+      - Add NVS_KEY_AP_ENABLED = "ap_on"
+- [x] 1.4 Update boot.py to restore STA/AP states independently
 
-## 2. Reusable STA Config Editor
+## 2. Sub-tab UI Framework
 
-- [ ] 2.1 Refactor existing network scan/connect UI into STA config editor component
-- [ ] 2.2 Network list with signal bars, SSID, security type
-- [ ] 2.3 Network selection (up/down navigation, Enter to connect)
-- [ ] 2.4 Password input screen for secured networks (masked input)
-- [ ] 2.5 Scan, connect, disconnect functions
-- [ ] 2.6 ESC behavior: exit to dual status view (STA+AP) or cycle mode (STA)
-- [ ] 2.7 Wire editor to be callable from both STA mode and STA+AP mode
+- [x] 2.1 Add sub-tab state: `_subtab` (0=STA, 1=AP)
+- [x] 2.2 Draw sub-tab bar with `[S]TA` and `[A]P` labels
+- [x] 2.3 Highlight selected sub-tab (inverted colors)
+- [x] 2.4 Handle `S` key to switch to STA sub-tab
+- [x] 2.5 Handle `A` key to switch to AP sub-tab
 
-## 3. Reusable AP Config Editor
+## 3. STA Sub-tab Views
 
-- [ ] 3.1 Create AP config editor component (menu with SSID/Password fields)
-- [ ] 3.2 Implement field selection (up/down navigation)
-- [ ] 3.3 Implement text input for SSID (visible) and password (masked)
-- [ ] 3.4 Implement Apply (save + restart AP if active) and Cancel (discard)
-- [ ] 3.5 Wire editor to be callable from both AP mode and STA+AP mode
+- [x] 3.1 STA Off view: show "WiFi radio disabled", prompt [O]n
+- [x] 3.2 STA On (not connected): show network list, [O]ff [S]can [C]onnect saved
+- [x] 3.3 STA On (connected): show status + IP, network list, [O]ff [S]can [D]isconnect
+- [x] 3.4 Network list with signal bars, SSID, security type
+- [x] 3.5 Network selection (up/down navigation, Enter to connect)
+- [x] 3.6 Password input screen for secured networks
+- [x] 3.7 Fix ESC in password input: return to STA view (not exit WiFi tab)
 
-## 4. Mode-Specific Views
+## 4. AP Sub-tab Views
 
-- [ ] 4.1 Implement Off mode view (prompt to press M)
-- [ ] 4.2 STA mode: display STA config editor as main view
-- [ ] 4.3 AP mode: AP status view (IP, clients) + [E]dit to open AP config editor
-- [ ] 4.4 STA+AP mode: dual status view + [S]can for STA editor + [E]dit for AP editor
+- [x] 4.1 AP Off view: show saved SSID/pass, prompt [O]n [E]dit
+- [x] 4.2 AP On (no clients): show SSID + IP, "Waiting for connections...", [O]ff [E]dit
+- [x] 4.3 AP On (with clients): show SSID + IP + client list, [O]ff [E]dit
+- [x] 4.4 AP config editor: SSID and password fields
+- [x] 4.5 Field selection (up/down navigation)
+- [x] 4.6 Text input for SSID (visible) and password (masked)
+- [x] 4.7 Apply (save + restart AP if active) and Cancel (discard)
+- [x] 4.8 Fix ESC in AP editor: return to AP view (not exit WiFi tab)
 
-## 5. Testing
+## 5. Key Handling
 
-- [ ] 5.1 Test mode cycling and persistence across reboots
-- [ ] 5.2 Test boot.py restores correct mode (Off, STA, AP, STA+AP)
-- [ ] 5.3 Test AP creation and client connections
-- [ ] 5.4 Test STA+AP dual mode - verify both interfaces work independently
-- [ ] 5.5 Test STA config editor from both STA and STA+AP modes
-- [ ] 5.6 Test AP config editor from both AP and STA+AP modes
+- [x] 5.1 `[O]` toggles current interface on/off (context-aware)
+- [x] 5.2 STA context: `[S]` scans, `[D]` disconnects, `[C]` connects saved
+- [x] 5.3 AP context: `[E]` opens config editor
+- [x] 5.4 Global: `[S]` switches to STA, `[A]` switches to AP (when not in editor)
 
-## 6. Optional Enhancements
+## 6. Testing
 
-- [ ] 6.1 Auto-generate default AP SSID from device name (e.g., "Cardputer-XXXX")
-- [ ] 6.2 Show list of connected clients with IP/MAC when AP is active
+- [ ] 6.1 Test STA enable/disable and persistence across reboots
+- [ ] 6.2 Test AP enable/disable and persistence across reboots
+- [ ] 6.3 Test both STA and AP enabled simultaneously
+- [ ] 6.4 Test boot.py restores correct STA/AP states
+- [ ] 6.5 Test ESC returns to correct view (not exit tab)
+- [ ] 6.6 Test AP creation and client connections
+
+## 7. Optional Enhancements
+
+- [ ] 7.1 Auto-generate default AP SSID from device ID (e.g., "Cardputer-XXXX")
+- [x] 7.2 Show list of connected clients with MAC when AP is active

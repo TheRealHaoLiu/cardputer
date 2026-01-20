@@ -8,6 +8,7 @@ Adding WiFi AP mode to settings requires new infrastructure that could benefit o
 - Clean, reusable WiFi management code in lib/
 - Constants for mode values and NVS keys
 - Leverage existing MicroPython libraries where appropriate
+- Intuitive sub-tab UI for independent STA/AP control
 
 **Non-Goals:**
 - Full-featured captive portal (future work)
@@ -15,20 +16,172 @@ Adding WiFi AP mode to settings requires new infrastructure that could benefit o
 
 ## Decisions
 
-### 1. Constants Module
+### 1. UI Architecture: Sub-tabs over Mode Cycling
+
+**Problem with mode cycling:**
+The original design used a single mode that cycles through OFF→STA→AP→STA+AP. This created UX issues:
+- Users couldn't independently control STA and AP
+- Confusing when you want to disconnect STA but keep AP running
+- No way to turn off just one interface
+
+**Solution: Independent sub-tabs**
+The WiFi tab contains two sub-tabs: `[S]TA` and `[A]P`. Each can be toggled on/off independently.
+
+```
+┌──────────────────────────────────────┐
+│  ▓[S]TA▓   [A]P                      │  <- Sub-tab bar (S/A to switch)
+├──────────────────────────────────────┤
+│ Status: Connected   IP: 192.168.1.50 │  <- Context-specific content
+│ > HomeWifi          ████ WPA     *   │
+│   OfficeNet         ███  WPA         │
+├──────────────────────────────────────┤
+│ [O]ff [S]can [D]isconnect            │  <- Context-specific controls
+└──────────────────────────────────────┘
+```
+
+**Key bindings:**
+| Key | Action |
+|-----|--------|
+| `S` | Switch to STA sub-tab |
+| `A` | Switch to AP sub-tab |
+| `O` | Toggle current interface on/off |
+| `↑/↓` | Navigate network list (STA) or fields (AP editor) |
+| `Enter` | Connect to network (STA) or apply changes (AP editor) |
+| `ESC` | Cancel current operation (password input, AP editor) |
+
+**STA-specific keys (when STA sub-tab active):**
+| Key | Action |
+|-----|--------|
+| `S` | Scan for networks (context: already in STA tab) |
+| `D` | Disconnect from current network |
+| `C` | Connect to saved network |
+
+**AP-specific keys (when AP sub-tab active):**
+| Key | Action |
+|-----|--------|
+| `E` | Edit AP configuration (SSID/password) |
+
+### 2. Sub-tab Visual States
+
+**STA Sub-tab States:**
+
+Off:
+```
+│  ▓[S]TA▓   [A]P                      │
+├──────────────────────────────────────┤
+│ Status: Off                          │
+│                                      │
+│       WiFi radio disabled            │
+│       Press [O] to enable            │
+├──────────────────────────────────────┤
+│ [O]n                                 │
+```
+
+On, not connected:
+```
+│  ▓[S]TA▓   [A]P                      │
+├──────────────────────────────────────┤
+│ Status: Not connected                │
+│                                      │
+│ > HomeWifi          ████ WPA         │
+│   OfficeNet         ███  WPA         │
+├──────────────────────────────────────┤
+│ [O]ff [S]can [C]onnect saved         │
+```
+
+On, connected:
+```
+│  ▓[S]TA▓   [A]P                      │
+├──────────────────────────────────────┤
+│ Status: Connected   IP: 192.168.1.50 │
+│                                      │
+│ > HomeWifi          ████ WPA     *   │
+│   OfficeNet         ███  WPA         │
+├──────────────────────────────────────┤
+│ [O]ff [S]can [D]isconnect            │
+```
+
+**AP Sub-tab States:**
+
+Off:
+```
+│  [S]TA   ▓[A]P▓                      │
+├──────────────────────────────────────┤
+│ Status: Off                          │
+│ SSID: Cardputer-AP                   │
+│ Pass: ********                       │
+│                                      │
+│       Press [O] to start             │
+├──────────────────────────────────────┤
+│ [O]n [E]dit                          │
+```
+
+On, no clients:
+```
+│  [S]TA   ▓[A]P▓                      │
+├──────────────────────────────────────┤
+│ SSID: Cardputer-AP   IP: 192.168.4.1 │
+│ Clients: 0                           │
+│                                      │
+│       Waiting for connections...     │
+├──────────────────────────────────────┤
+│ [O]ff [E]dit                         │
+```
+
+On, with clients:
+```
+│  [S]TA   ▓[A]P▓                      │
+├──────────────────────────────────────┤
+│ SSID: Cardputer-AP   IP: 192.168.4.1 │
+│ Clients: 2                           │
+│   aa:bb:cc:dd:ee:ff                  │
+│   11:22:33:44:55:66                  │
+├──────────────────────────────────────┤
+│ [O]ff [E]dit                         │
+```
+
+### 3. Password Input Screen (STA)
+
+When connecting to a secured network:
+```
+├──────────────────────────────────────┤
+│ Connect to: HomeWifi                 │
+│                                      │
+│ Password:                            │
+│ ┌────────────────────────────────┐   │
+│ │ **********_                    │   │
+│ └────────────────────────────────┘   │
+├──────────────────────────────────────┤
+│ [Enter] Connect  [ESC] Cancel        │
+```
+
+**ESC behavior:** Returns to STA network list (not exit WiFi tab).
+
+### 4. AP Config Editor
+
+When editing AP settings:
+```
+├──────────────────────────────────────┤
+│ AP Configuration                     │
+│                                      │
+│ ▓SSID: Cardputer-AP_▓                │  <- Selected field highlighted
+│  Pass: ********                      │
+│                                      │
+├──────────────────────────────────────┤
+│ [Enter] Apply  [ESC] Cancel          │
+```
+
+**ESC behavior:** Returns to AP status view (discards changes).
+
+### 5. Constants Module
 
 Create `lib/wifi_constants.py` for shared constants:
 
 ```python
-# WiFi modes
-WIFI_MODE_OFF = 0
-WIFI_MODE_STA = 1
-WIFI_MODE_AP = 2
-WIFI_MODE_STA_AP = 3
-
 # NVS
 NVS_NAMESPACE = "cardputer_wifi"
-NVS_KEY_MODE = "mode"
+NVS_KEY_STA_ENABLED = "sta_on"
+NVS_KEY_AP_ENABLED = "ap_on"
 NVS_KEY_STA_SSID = "sta_ssid"
 NVS_KEY_STA_PASSWORD = "sta_password"
 NVS_KEY_AP_SSID = "ap_ssid"
@@ -39,47 +192,50 @@ DEFAULT_AP_SSID = "Cardputer-AP"
 DEFAULT_AP_IP = "192.168.4.1"
 ```
 
-### 2. WiFi Manager Library
+Note: Mode constants (WIFI_MODE_OFF, etc.) are no longer needed since STA and AP are independent.
+
+### 6. WiFi Manager Library
 
 Extract reusable WiFi logic into `lib/wifi_manager.py`:
 
 ```python
 class WiFiManager:
-    """Manages WiFi STA and AP interfaces."""
+    """Manages WiFi STA and AP interfaces independently."""
 
     def __init__(self):
         self._sta = None
         self._ap = None
-        self._mode = WIFI_MODE_OFF
-
-    # Mode management
-    def set_mode(self, mode): ...
-    def get_mode(self): ...
+        self._sta_enabled = False
+        self._ap_enabled = False
 
     # STA operations
+    def sta_enable(self): ...
+    def sta_disable(self): ...
+    def sta_is_enabled(self): ...
     def sta_connect(self, ssid, password): ...
     def sta_disconnect(self): ...
     def sta_scan(self): ...
     def sta_is_connected(self): ...
     def sta_get_ip(self): ...
+    def sta_get_ssid(self): ...
 
     # AP operations
-    def ap_start(self, ssid, password=""): ...
-    def ap_stop(self): ...
+    def ap_enable(self, ssid=None, password=None): ...
+    def ap_disable(self): ...
+    def ap_is_enabled(self): ...
     def ap_get_ip(self): ...
+    def ap_get_ssid(self): ...
+    def ap_get_password(self): ...
     def ap_get_clients(self): ...
+    def ap_set_config(self, ssid, password): ...
 
     # NVS persistence
     def save_config(self): ...
     def load_config(self): ...
+    def restore_state(self): ...  # Called at boot
 ```
 
-Benefits:
-- Shared between wifi_tab.py, boot.py, webserver_demo.py
-- Single source of truth for WiFi state
-- Testable in isolation
-
-### 3. External Libraries
+### 7. External Libraries
 
 **Already available in UIFlow2:**
 - `network` - built-in MicroPython WiFi module (use this)
@@ -92,24 +248,14 @@ Benefits:
 **UIFlow Reference Implementations:**
 - `m5stack/uiflow-micropython/tests/wlan/test_wlan_ap.py` - AP mode test
 - `m5stack/uiflow-micropython/examples/system/wlan_ap/wlan_ap_cores3_example.py` - Simple AP example
-- `m5stack/uiflow-micropython/m5stack/modules/startup/nesson1.py` - Full captive portal (lines 534-826)
 
 **Future consideration:**
 - Captive portal for phone-based WiFi config (no keyboard needed)
-  - UIFlow reference: `nesson1.py` SetupApp class with DNS + Microdot
-  - See: https://github.com/metachris/micropython-captiveportal
-  - See: https://github.com/george-hawkins/micropython-wifi-setup
 - mDNS for .local hostname resolution
-- Webserver demo AP fallback
-  - Use WiFiManager to offer "Use saved WiFi" or "Create hotspot"
-  - Fallback to AP mode if no STA credentials saved
-  - Makes webserver accessible without existing WiFi network
 
 ## UIFlow Patterns Reference
 
 ### AP Mode Configuration
-
-From `test_wlan_ap.py` and `wlan_ap_cores3_example.py`:
 
 ```python
 import network
@@ -124,64 +270,6 @@ wlan.config(essid="Cardputer-AP")
 wlan.config(password="password123")  # Min 8 chars for WPA2
 wlan.config(authmode=network.AUTH_WPA_WPA2_PSK)  # Or AUTH_OPEN
 wlan.config(max_clients=4)
-wlan.config(txpower=20)  # dBm
-wlan.config(dhcp_hostname="cardputer")
-wlan.config(hidden=False)  # Hide/show SSID
-wlan.config(channel=6)  # WiFi channel
-
-# Status checks
-wlan.isconnected()  # True if clients connected
-wlan.ifconfig()  # (ip, netmask, gateway, dns) - default AP IP: 192.168.4.1
-wlan.status("stations")  # List of connected client tuples
-```
-
-### Interface Constants
-
-```python
-# Interface types
-network.AP_IF           # Access Point interface
-network.STA_IF          # Station interface
-network.WLAN.IF_AP      # Alternative constant
-network.WLAN.IF_STA     # Alternative constant
-
-# Auth modes
-network.AUTH_OPEN              # Open network (no password)
-network.AUTH_WPA_WPA2_PSK      # WPA/WPA2 with password
-```
-
-### Auto-Generated AP Name Pattern
-
-From `nesson1.py`:
-
-```python
-import binascii
-import machine
-
-# Generate unique AP name from device ID
-device_id = binascii.hexlify(machine.unique_id()).upper().decode()
-ap_name = "Cardputer-" + device_id[-4:]  # e.g., "Cardputer-A1B2"
-```
-
-### NVS Storage Pattern
-
-From UIFlow startup modules:
-
-```python
-import esp32
-
-nvs = esp32.NVS("cardputer_wifi")
-
-# String storage (for SSID/password)
-nvs.set_str("sta_ssid", ssid)
-nvs.set_str("sta_password", password)
-nvs.commit()
-
-# Reading strings
-ssid = nvs.get_str("sta_ssid")
-
-# Integer storage (for mode)
-nvs.set_i32("mode", WIFI_MODE_STA)
-mode = nvs.get_i32("mode")
 ```
 
 ### Connected Clients Info
@@ -192,7 +280,7 @@ stations = wlan.status("stations")
 # Returns list of tuples: [(mac_bytes, rssi), ...]
 
 for mac, rssi in stations:
-    mac_str = ":".join("{:02x}".format(b) for b in mac)
+    mac_str = ":".join(f"{b:02x}" for b in mac)
     print(f"Client: {mac_str}, RSSI: {rssi}")
 ```
 
@@ -219,8 +307,3 @@ apps/settings/
 
 boot.py                  # Uses WiFiManager
 ```
-
-## Open Questions
-
-- Should WiFiManager be a singleton or passed as dependency?
-  - Recommend: module-level instance for simplicity

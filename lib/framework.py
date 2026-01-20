@@ -433,12 +433,9 @@ class Framework:
         modules_to_clear = []
         for mod_name in sys.modules:
             mod = sys.modules[mod_name]
-            # Clear modules loaded from apps directory
-            if (
-                hasattr(mod, "__file__")
-                and mod.__file__
-                and ("/apps/" in mod.__file__ or "/remote/" in mod.__file__)
-            ):
+            # Clear modules loaded from apps or lib directories (remote or flash)
+            mod_file = getattr(mod, "__file__", None)
+            if mod_file and ("/apps/" in mod_file or "/lib/" in mod_file):
                 modules_to_clear.append(mod_name)
         for mod_name in modules_to_clear:
             del sys.modules[mod_name]

@@ -189,8 +189,14 @@ class SettingsApp(AppBase):
         """Handle keyboard events."""
         key = event.key
 
-        # ESC - let framework handle exit
+        # ESC - let tab handle first, then framework handles exit
         if key == KeyCode.KEYCODE_ESC:
+            tab = self._get_tab(self._current_tab)
+            if tab and tab.handle_key(self, key):
+                # Tab handled ESC (e.g., cancel password input)
+                event.status = True
+                return
+            # Tab didn't handle, let framework exit
             print("[settings] ESC pressed, exiting")
             return
 

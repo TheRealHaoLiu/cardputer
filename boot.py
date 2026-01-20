@@ -1,64 +1,25 @@
-# boot.py - Simple boot that runs main.py
+# boot.py - Boot sequence with WiFi state restoration
+import sys
+
+# Add lib path before any imports
+for path in ["/flash/lib", "/remote/lib"]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
 import M5
 
 
-def _wifi_boot_connect():
-    """Connect to WiFi on boot if enabled and credentials exist."""
+def _wifi_boot_restore():
+    """Restore WiFi STA/AP states and connections on boot."""
     try:
-        import esp32
+        from wifi_manager import get_wifi_manager
 
-        # Check if WiFi is enabled (wifi_on in settings namespace)
-        try:
-            nvs_settings = esp32.NVS("settings")
-            wifi_on = nvs_settings.get_i32("wifi_on")
-        except OSError:
-            # Key doesn't exist - WiFi not explicitly enabled
-            return
-
-        if wifi_on != 1:
-            return
-
-        # Load credentials from wifi namespace
-        try:
-            nvs_wifi = esp32.NVS("wifi")
-            ssid_buf = bytearray(64)
-            ssid_len = nvs_wifi.get_blob("ssid", ssid_buf)
-            if not ssid_len:
-                return
-            ssid = ssid_buf[:ssid_len].decode("utf-8")
-
-            pwd_buf = bytearray(64)
-            pwd_len = nvs_wifi.get_blob("password", pwd_buf)
-            password = pwd_buf[:pwd_len].decode("utf-8") if pwd_len else ""
-        except OSError:
-            # No credentials saved
-            return
-
-        # Connect to WiFi
-        import time
-
-        import network
-
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
-        time.sleep_ms(100)
-
-        print(f"[boot] Connecting to {ssid}...")
-        wlan.connect(ssid, password)
-
-        # Wait up to 10 seconds for connection
-        for _ in range(100):
-            if wlan.isconnected():
-                print(f"[boot] Connected to {ssid}")
-                return
-            time.sleep_ms(100)
-
-        print("[boot] WiFi connection timeout")
-
+        wifi = get_wifi_manager()
+        wifi.restore_state()
     except Exception as e:
-        print(f"[boot] WiFi connect failed: {e}")
+        print(f"[boot] WiFi restore failed: {e}")
 
 
 if __name__ == "__main__":
     M5.begin()
-    _wifi_boot_connect()
+    _wifi_boot_restore()
