@@ -96,9 +96,40 @@ Implement network scanning and connection.
 
 ---
 
+## Step 7: Modular Refactoring ✅ COMPLETE
+
+Split monolithic settings_app.py (~1400 lines, 48KB) into smaller modules for better maintainability and reduced memory usage during import.
+
+### Target Structure
+```
+apps/
+├── settings_app.py          # Main app, tab framework (~200 lines)
+└── settings/
+    ├── __init__.py          # Package init
+    ├── wifi_tab.py          # WiFi tab logic
+    ├── display_tab.py       # Display tab logic
+    ├── sound_tab.py         # Sound tab logic
+    ├── system_tab.py        # System tab logic
+    └── about_tab.py         # About tab logic
+```
+
+### Tasks
+- [x] 7.1 Create `apps/settings/` directory structure
+- [x] 7.2 Extract WiFi tab to `wifi_tab.py`
+- [x] 7.3 Extract Display tab to `display_tab.py`
+- [x] 7.4 Extract Sound tab to `sound_tab.py`
+- [x] 7.5 Extract System tab to `system_tab.py`
+- [x] 7.6 Extract About tab to `about_tab.py`
+- [x] 7.7 Refactor main `settings_app.py` to import tabs
+- [x] 7.8 Add lazy loading (import tab only when first accessed)
+- [x] 7.9 Test on device
+
+---
+
 ## Future Enhancements (Post-MVP)
 
 - [ ] Hidden network entry
 - [ ] Hostname configuration
 - [ ] WiFi QR code sharing
 - [ ] Clock/Timezone tab
+- [ ] Compile to .mpy for faster loading
