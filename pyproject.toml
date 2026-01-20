@@ -78,6 +78,14 @@ positional = true
 help = "Reset the device"
 shell = "mpremote connect /dev/tty.usbmodem* reset"
 
+[tool.poe.tasks.tree]
+help = "Show directory tree on device"
+shell = "mpremote connect /dev/tty.usbmodem* fs tree ${path}"
+
+[tool.poe.tasks.tree.args.path]
+default = "/flash"
+positional = true
+
 [tool.poe.tasks.cat]
 help = "Show file contents from device"
 shell = "mpremote connect /dev/tty.usbmodem* fs cat ${path}"
@@ -93,3 +101,26 @@ shell = """mpremote connect /dev/tty.usbmodem* exec "import esp32; nvs=esp32.NVS
 [tool.poe.tasks.set-boot-mode.args.mode]
 default = "0"
 positional = true
+
+[tool.poe.tasks.restore]
+help = "Restore device to original UIFlow state (clears libs, apps, main.py, restores boot.py)"
+shell = """
+mpremote connect /dev/tty.usbmodem* \
+    exec "
+import os
+def rmtree(p):
+ try:
+  for f in os.listdir(p):
+   fp=p+'/'+f
+   try:os.remove(fp)
+   except:rmtree(fp)
+  os.rmdir(p)
+ except:pass
+rmtree('/flash/libs');os.mkdir('/flash/libs');print('Cleared /flash/libs')
+rmtree('/flash/apps');os.mkdir('/flash/apps');print('Cleared /flash/apps')
+try:os.remove('/flash/main.py');print('Removed /flash/main.py')
+except:print('No main.py to remove')
+" \
+    + fs cp boot.py.orig :/flash/boot.py \
+    + fs tree /flash
+"""

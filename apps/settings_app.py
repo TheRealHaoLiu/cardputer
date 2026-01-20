@@ -28,8 +28,8 @@ for path in ["/flash", "/remote"]:
 
 from M5 import Lcd, Widgets
 
-from lib.app_base import AppBase
-from lib.keycode import HID_TAB, KEY_NAV_DOWN, KEY_NAV_UP, KeyCode
+from libs.app_base import AppBase
+from libs.keycode import HID_TAB, KEY_NAV_DOWN, KEY_NAV_UP, KeyCode
 
 # Import shared constants from settings package
 from apps.settings import (
@@ -235,7 +235,7 @@ if __name__ == "__main__":
     Lcd.setRotation(1)
     Lcd.setBrightness(80)
 
-    from lib.framework import Framework
+    from libs.framework import Framework
 
     fw = Framework()
     fw.install(SettingsApp())

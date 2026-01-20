@@ -37,7 +37,7 @@ import asyncio
 # PATH SETUP FOR IMPORTS
 # =============================================================================
 # When running as an app, we need to ensure lib/ is in the import path.
-# This allows us to import from lib.app_base even when the app is
+# This allows us to import from libs.app_base even when the app is
 # loaded dynamically by the framework.
 import sys
 
@@ -48,12 +48,12 @@ import sys
 # Widgets provides fonts for text rendering
 from M5 import Lcd, Widgets
 
-# Path setup for imports (need parent of lib/ for "from lib.x" imports)
+# Path setup for imports (need parent of libs/ for "from libs.x" imports)
 for lib_path in ["/flash", "/remote"]:
     if lib_path not in sys.path:
         sys.path.insert(0, lib_path)
 
-from lib.app_base import AppBase
+from libs.app_base import AppBase
 
 # =============================================================================
 # APP CLASS
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     Lcd.setRotation(1)
     Lcd.setBrightness(40)
 
-    from lib.framework import Framework
+    from libs.framework import Framework
 
     fw = Framework()
     fw.install(HelloWorld())

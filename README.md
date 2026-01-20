@@ -93,7 +93,7 @@ Copies all files to device flash. The device runs independently after this - no 
 
 **WARNING**: Deploy replaces **all** of the following on the device:
 - `/flash/main.py`
-- `/flash/lib/*` (framework.py, app_base.py, etc.)
+- `/flash/libs/*` (framework.py, app_base.py, etc.)
 - `/flash/apps/*` (all app files)
 
 Any changes made directly on the device will be lost!

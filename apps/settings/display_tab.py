@@ -122,7 +122,7 @@ class DisplayTab(TabBase):
 
     def handle_key(self, app, key):
         """Handle key press."""
-        from lib.keycode import KEY_NAV_LEFT, KEY_NAV_RIGHT
+        from libs.keycode import KEY_NAV_LEFT, KEY_NAV_RIGHT
 
         # Restore screen if off
         if self.brightness == 0:

@@ -41,12 +41,12 @@ for path in ["/flash", "/remote"]:
 import widgets
 from M5 import Lcd, Widgets
 
-from lib.app_base import AppBase
+from libs.app_base import AppBase
 
 SCREEN_H = 135
 
 # Key constants and modifiers
-from lib.keycode import (
+from libs.keycode import (
     KEY_MOD_LSHIFT,
     KeyCode,
     decode_modifiers,
@@ -331,7 +331,7 @@ if __name__ == "__main__":
     Lcd.setRotation(1)
     Lcd.setBrightness(40)
 
-    from lib.framework import Framework
+    from libs.framework import Framework
 
     fw = Framework()
     fw.install(KeyboardDemo())

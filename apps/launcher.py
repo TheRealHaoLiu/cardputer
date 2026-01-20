@@ -31,12 +31,12 @@ import sys
 # =============================================================================
 from M5 import Lcd, Widgets
 
-# Path setup for imports (need parent of lib/ for "from lib.x" imports)
+# Path setup for imports (need parent of libs/ for "from libs.x" imports)
 for lib_path in ["/flash", "/remote"]:
     if lib_path not in sys.path:
         sys.path.insert(0, lib_path)
 
-from lib.app_base import AppBase
+from libs.app_base import AppBase
 
 # Import KeyCode for arrow key constants
 # Falls back to a local definition if not available in firmware

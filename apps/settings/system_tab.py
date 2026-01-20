@@ -132,7 +132,7 @@ class SystemTab(TabBase):
 
     def handle_key(self, app, key):
         """Handle key press."""
-        from lib.keycode import KeyCode
+        from libs.keycode import KeyCode
 
         if key == KeyCode.KEYCODE_ENTER:
             self._cycle_boot(app)

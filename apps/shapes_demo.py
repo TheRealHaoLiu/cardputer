@@ -48,8 +48,8 @@ for path in ["/flash", "/remote"]:
 
 from M5 import Lcd, Widgets
 
-from lib.app_base import AppBase
-from lib.keycode import KeyCode
+from libs.app_base import AppBase
+from libs.keycode import KeyCode
 
 SCREEN_W = 240
 SCREEN_H = 135
@@ -239,7 +239,7 @@ if __name__ == "__main__":
     Lcd.setRotation(1)
     Lcd.setBrightness(40)
 
-    from lib.framework import Framework
+    from libs.framework import Framework
 
     fw = Framework()
     fw.install(ShapesDemo())

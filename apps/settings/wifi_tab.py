@@ -359,7 +359,7 @@ class WiFiTab(TabBase):
 
     def handle_key(self, app, key):
         """Handle key press."""
-        from lib.keycode import KEY_NAV_DOWN, KEY_NAV_UP, KeyCode
+        from libs.keycode import KEY_NAV_DOWN, KEY_NAV_UP, KeyCode
 
         if self.input_mode:
             if key == KeyCode.KEYCODE_ESC:

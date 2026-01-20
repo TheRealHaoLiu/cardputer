@@ -38,7 +38,7 @@ CONTROLS:
 # =============================================================================
 # MicroPython adds the script's directory to sys.path automatically.
 # So when running /remote/main.py, /remote is already in path and
-# "from lib.framework" finds /remote/lib/framework.py.
+# "from libs.framework" finds /remote/libs/framework.py.
 #
 # We only need to add the apps directory for dynamic app discovery.
 
@@ -82,7 +82,7 @@ Lcd.fillScreen(Lcd.COLOR.BLACK)  # Clear to black
 # Apps must be imported AFTER path setup above.
 
 from apps.launcher import LauncherApp
-from lib.framework import Framework
+from libs.framework import Framework
 
 # Apps are discovered automatically from the apps/ directory.
 # To add a new app, just create apps/my_app.py (inherit from AppBase).
