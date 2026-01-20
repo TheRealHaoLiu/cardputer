@@ -423,7 +423,8 @@ class Framework:
         self._registry_scanned = False
 
         # Clear lazily-loaded apps from _apps list (keep launcher)
-        self._apps = [app for app in self._apps if app is self._launcher]
+        # Use slice assignment to modify in-place (keeps _app_selector reference valid)
+        self._apps[:] = [app for app in self._apps if app is self._launcher]
 
         # Clear cached Python modules so they're reimported fresh
         # This is essential for hot-reload to pick up code changes
