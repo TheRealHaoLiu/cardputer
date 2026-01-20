@@ -92,6 +92,27 @@ Manual testing on hardware device. Use development workflow with mounted files f
 - **Feature branches:** Descriptive names (e.g., `adopting-app-framework`)
 - **Commit style:** Imperative mood, concise descriptions (e.g., "Add keyboard demo app and extract keycode utilities")
 
+### Development Principles
+
+**Incremental Implementation:**
+- For complex features, break tasks into small, testable steps
+- Implement and test one piece at a time before moving to the next
+- Each step should be independently verifiable on hardware
+- Prefer working code that can be extended over comprehensive plans that haven't been tested
+
+**Learning-Focused Code:**
+- This is a learning project - code IS documentation
+- Add comments explaining "why" not just "what"
+- Comment non-obvious logic, hardware quirks, and design decisions
+- Include console logging with `print()` for debugging and understanding flow
+- Use descriptive variable names that teach concepts
+
+**UI/UX Design:**
+- Prefer button/menu-based navigation over complex keyboard shortcuts
+- Use consistent navigation patterns across apps (Tab, ;/., Enter, ESC)
+- Show available actions in footer hints
+- Keep UI simple - the 240x135 screen has limited space
+
 ## Domain Context
 
 **Project Structure:**
