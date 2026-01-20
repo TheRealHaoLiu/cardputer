@@ -32,6 +32,13 @@ except ImportError:
 # This overlaps with '+' (Shift+=), so check shift state to differentiate
 HID_TAB = 0x2B
 
+# Cardputer navigation keys (physical keyboard layout)
+# These are the ASCII codes for the keys used for navigation
+KEY_NAV_UP = 59  # ; (semicolon)
+KEY_NAV_DOWN = 46  # . (period)
+KEY_NAV_LEFT = 44  # , (comma)
+KEY_NAV_RIGHT = 47  # / (slash)
+
 # Modifier key masks from firmware
 try:
     from hardware.keyboard.asciimap import (

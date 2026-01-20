@@ -100,6 +100,24 @@ The WiFi tab SHALL allow users to enable or disable the WiFi radio.
 - **THEN** the WiFi radio SHALL be activated
 - **AND** auto-reconnect to saved network SHALL be attempted
 
+### Requirement: WiFi Tab - Credential Persistence
+The WiFi tab SHALL save network credentials to NVS for automatic reconnection.
+
+#### Scenario: Credentials saved on successful connection
+- **WHEN** user successfully connects to a network
+- **THEN** the SSID and password SHALL be saved to NVS namespace "wifi"
+- **AND** these credentials SHALL persist across device reboots
+
+#### Scenario: User connects to saved network
+- **WHEN** saved credentials exist
+- **AND** user presses C key
+- **THEN** connection SHALL be attempted using saved credentials
+
+#### Scenario: User forgets saved network
+- **WHEN** user presses F key
+- **THEN** saved credentials SHALL be erased from NVS
+- **AND** the saved network indicator SHALL be removed from display
+
 ### Requirement: WiFi Tab - QR Code Sharing
 The WiFi tab SHALL generate a QR code for sharing current network credentials.
 
@@ -192,3 +210,13 @@ The About tab SHALL display device and firmware information.
 - **AND** MicroPython version SHALL be displayed
 - **AND** MAC address SHALL be displayed
 - **AND** uptime since boot SHALL be displayed
+- **AND** battery level percentage SHALL be displayed
+- **AND** charging status SHALL be indicated when plugged in
+
+#### Scenario: Battery level color indication
+- **WHEN** battery level is above 50%
+- **THEN** level SHALL be displayed in green
+- **WHEN** battery level is between 20% and 50%
+- **THEN** level SHALL be displayed in yellow
+- **WHEN** battery level is below 20%
+- **THEN** level SHALL be displayed in red
