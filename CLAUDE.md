@@ -77,3 +77,99 @@ When running `/openspec:archive`:
    - Show which tasks are incomplete
    - Ask if they want to complete them first or archive anyway
 3. Only run `openspec archive <id> --yes` after user confirms
+
+## Commit Message Style
+
+Use conventional commit format: `<type>: <description>`
+
+### Types
+
+| Type | Description |
+|------|-------------|
+| `feat` | New feature or functionality |
+| `fix` | Bug fix |
+| `docs` | Documentation only changes |
+| `style` | Formatting, whitespace (no code logic change) |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `perf` | Performance improvement |
+| `test` | Adding or updating tests |
+| `build` | Build system or dependencies (PlatformIO, libs) |
+| `ci` | CI/CD configuration changes |
+| `chore` | Maintenance tasks, tooling |
+| `revert` | Reverting a previous commit |
+| `openspec` | Proposals, specs, and archives |
+
+### Subject Line Rules
+
+- **Imperative mood**: `add feature` not `added` or `adds`
+- **Lowercase after type**: `feat: add settings app` not `feat: Add Settings App`
+- **No trailing period**: `fix: resolve memory leak` not `fix: resolve memory leak.`
+- **Under 50 characters**: keep it concise
+- **Be specific**: `fix: prevent crash on empty config` not `fix: bug`
+
+### Words to Avoid
+
+- comprehensive, various, some, minor, miscellaneous, stuff, things
+- Either be specific or remove the filler word entirely
+
+### Verb Choices
+
+| Action | Verbs |
+|--------|-------|
+| New feature | `add`, `implement`, `create` |
+| Modify existing | `update`, `change`, `improve` |
+| Remove | `remove`, `delete`, `drop` |
+| Fix | `fix`, `resolve`, `correct` |
+| Rename/move | `rename`, `move`, `relocate` |
+
+### Examples
+
+```
+feat: add WiFi auto-connect on boot
+fix: resolve hot-reload app selector reference
+openspec: add wifi-boot-connect proposal
+openspec: archive add-ftp-server
+docs: update OpenSpec apply workflow
+refactor: modularize settings app architecture
+chore: add pre-commit hooks with gitleaks
+```
+
+### Commit Body
+
+The body is optional but useful for non-trivial changes.
+
+**Rules:**
+- Blank line after subject (required separator)
+- Wrap at 72 characters
+- Explain *what* and *why*, not *how*
+- Use `-` for bullet points
+- Reference issues/PRs at the bottom
+
+**When to include a body:**
+- Breaking changes
+- Non-obvious reasoning
+- Trade-off decisions
+- Context for future readers
+
+**Example with body:**
+
+```
+feat: add WiFi auto-connect on boot
+
+Automatically connects to saved networks when device powers on.
+Reduces manual setup steps for users who frequently restart.
+
+- Check saved credentials in NVS on boot
+- Retry connection 3 times before giving up
+- Fall back to AP mode if all networks fail
+
+Closes #42
+```
+
+**Simple commits don't need a body:**
+
+```
+fix: typo in settings label
+style: format with ruff
+chore: update platformio to 6.1
+```
