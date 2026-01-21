@@ -120,7 +120,6 @@ Manual testing on hardware device. Use development workflow with mounted files f
 cardputer/
 ├── main.py           # Entry point - initializes hardware, creates framework
 ├── boot.py           # Hardware init and WiFi connection at boot
-├── boot.py.orig      # Original UIFlow boot.py (for device restore)
 ├── lib/              # Core framework code (MicroPython standard path)
 │   ├── framework.py  # Main event loop, app lifecycle, lazy loading
 │   ├── app_base.py   # Base classes (AppBase, AppSelector)
