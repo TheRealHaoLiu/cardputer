@@ -107,3 +107,72 @@ ls -la firmware/
 positional = true
 default = ""
 
+[tool.poe.tasks.m5launcher-upload]
+help = "Upload firmware to M5Launcher SD card (/firmwares folder)"
+cmd = "python tools/m5launcher-upload.py ${file} --url ${url} --user ${user} --pass ${pass}"
+
+[tool.poe.tasks.m5launcher-upload.args.file]
+positional = true
+default = ""
+
+[tool.poe.tasks.m5launcher-upload.args.url]
+options = ["--url"]
+default = "http://launcher.local"
+
+[tool.poe.tasks.m5launcher-upload.args.user]
+options = ["--user"]
+default = "admin"
+
+[tool.poe.tasks.m5launcher-upload.args.pass]
+options = ["--pass"]
+default = "launcher"
+
+[tool.poe.tasks.m5launcher-flash]
+help = "Flash firmware directly to device via M5Launcher OTA (no SD upload)"
+cmd = "python tools/m5launcher-flash.py ${file} --url ${url} --user ${user} --pass ${pass}"
+
+[tool.poe.tasks.m5launcher-flash.args.file]
+positional = true
+default = ""
+
+[tool.poe.tasks.m5launcher-flash.args.url]
+options = ["--url"]
+default = "http://launcher.local"
+
+[tool.poe.tasks.m5launcher-flash.args.user]
+options = ["--user"]
+default = "admin"
+
+[tool.poe.tasks.m5launcher-flash.args.pass]
+options = ["--pass"]
+default = "launcher"
+
+[tool.poe.tasks.ftp-upload]
+help = "Upload firmware to Cardputer via FTP (faster than M5Launcher web)"
+shell = """
+CMD="python tools/ftp-upload.py ${file} --host ${host} --path ${path}"
+[ -n "${user}" ] && CMD="$CMD --user ${user}"
+[ -n "${pass}" ] && CMD="$CMD --pass ${pass}"
+$CMD
+"""
+
+[tool.poe.tasks.ftp-upload.args.file]
+positional = true
+default = ""
+
+[tool.poe.tasks.ftp-upload.args.host]
+options = ["--host"]
+default = "192.168.68.71"
+
+[tool.poe.tasks.ftp-upload.args.path]
+options = ["--path"]
+default = "/sd"
+
+[tool.poe.tasks.ftp-upload.args.user]
+options = ["--user"]
+default = ""
+
+[tool.poe.tasks.ftp-upload.args.pass]
+options = ["--pass"]
+default = ""
+
